@@ -1,23 +1,25 @@
-# GitHub Copilot — Workspace Instructions
+# RTK — Token-Optimized CLI
 
-Full project context is in [AGENTS.md](../AGENTS.md). Read it before making any changes.
+**rtk** is a CLI proxy that filters and compresses command outputs, saving 60-90% tokens.
 
-## Behavioral Preferences
+## Rule
 
-- Respond in **Portuguese (Brazil)** when the user writes in Portuguese; English otherwise.
-- Prefer editing existing files over creating new ones.
-- After any file or directory rename/move, follow the checklist in [path-references.instructions.md](instructions/path-references.instructions.md).
-- When generating Kubernetes manifests or Helm templates, apply conventions from [kubernetes-manifests.instructions.md](instructions/kubernetes-manifests.instructions.md).
-- When touching monitoring Helm values (`00.scripts/yamls/`), apply [monitoring-stack.instructions.md](instructions/monitoring-stack.instructions.md).
-- When generating GitHub Actions workflows or ArgoCD manifests, apply [cicd-argocd.instructions.md](instructions/cicd-argocd.instructions.md).
+Always prefix shell commands with `rtk`:
 
-## Cross-Platform Requirement
+```bash
+# Instead of:              Use:
+git status                 rtk git status
+git log -10                rtk git log -10
+cargo test                 rtk cargo test
+docker ps                  rtk docker ps
+kubectl get pods           rtk kubectl pods
+```
 
-Every script change in `00.scripts/windows/` requires an equivalent change in `00.scripts/linux/`, and vice-versa.
+## Meta commands (use directly)
 
-## Never Do
-
-- Commit plaintext secrets or hardcoded credentials.
-- Use `latest` as an image tag in production manifests.
-- Create a Windows-only path in any YAML or Helm file.
-- Skip `resources.requests` / `resources.limits` on any container.
+```bash
+rtk gain              # Token savings dashboard
+rtk gain --history    # Per-command savings history
+rtk discover          # Find missed rtk opportunities
+rtk proxy <cmd>       # Run raw (no filtering) but track usage
+```

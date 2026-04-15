@@ -1,6 +1,7 @@
+#Requires -Version 7.0
 <#
 .SYNOPSIS
-    Instala ou atualiza todas as ferramentas necessárias para o workshop de Kubernetes local com k3d.
+    Instala ou atualiza todas as ferramentas necessárias para Kubernetes local com k3d.
 
 .DESCRIPTION
     Execução totalmente não-interativa: aceita termos e licenças automaticamente.
@@ -8,32 +9,21 @@
     - Instalada com update disponível → atualiza.
     - Já na versão mais recente       → prossegue sem alteração.
 
-    Por padrão o Docker Desktop NÃO é instalado. Use -InstallDocker para incluí-lo.
-    Docker Desktop é o único que requer privilégio de sistema: o UAC é solicitado
-    apenas para essa etapa. k3d, kubectl e Helm são instalados no escopo do usuário,
+    Docker Desktop é verificado e instalado automaticamente. Requer UAC apenas
+    para essa etapa. k3d, kubectl e Helm são instalados no escopo do usuário,
     sem necessidade de Administrador.
 
-.PARAMETER InstallDocker
-    Quando presente, instala ou atualiza o Docker Desktop.
-    Omita este parâmetro em VMs ou ambientes onde o Docker já está disponível.
-
 .EXAMPLE
-    .\01.install-dependencies.ps1
-    Instala apenas k3d, kubectl e Helm.
-
-.EXAMPLE
-    .\01.install-dependencies.ps1 -InstallDocker
-    Instala k3d, kubectl, Helm e Docker Desktop.
+    .\01.instalar-dependencias.ps1
+    Verifica e instala Docker Desktop, k3d, kubectl e Helm.
 
 .NOTES
     Pré-requisito: winget (App Installer) disponível no PATH.
     Após a execução, feche o terminal para que as variáveis de PATH sejam aplicadas.
 #>
-param(
-    [switch]$InstallDocker
-)
 
 $ErrorActionPreference = "Stop"
+Set-StrictMode -Version Latest
 
 function Write-Step($msg)    { Write-Host "`n==> $msg" -ForegroundColor Cyan }
 function Write-Success($msg) { Write-Host "    OK: $msg" -ForegroundColor Green }
@@ -144,14 +134,9 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 # ---------------------------------------------------------------------------
-# 1. Docker Desktop — opcional, requer elevação (UAC solicitado sob demanda)
+# 1. Docker Desktop — verificação automática, requer elevação (UAC sob demanda)
 # ---------------------------------------------------------------------------
-if ($InstallDocker) {
-    Install-DockerDesktop
-} else {
-    Write-Step "Docker Desktop"
-    Write-Warn "Pulando instalacao do Docker Desktop (use -InstallDocker para incluir)."
-}
+Install-DockerDesktop
 
 # ---------------------------------------------------------------------------
 # 2. CLIs — instalados no escopo do usuário, sem elevação necessária
@@ -171,7 +156,7 @@ Write-Host ""
 Write-Host "PROXIMOS PASSOS:" -ForegroundColor Yellow
 Write-Host "  1. Feche este terminal para aplicar as variaveis de PATH"  -ForegroundColor Yellow
 Write-Host "  2. Abra o Docker Desktop e aguarde o icone estabilizar"    -ForegroundColor Yellow
-Write-Host "  3. Abra um novo terminal e rode: .\scripts\02.verify-installs.ps1" -ForegroundColor Yellow
+Write-Host "  3. Abra um novo terminal e rode: .\02.verify-installs.ps1" -ForegroundColor Yellow
 Write-Host ""
 Write-Host "Pressione qualquer tecla para fechar..." -ForegroundColor DarkGray
 $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")

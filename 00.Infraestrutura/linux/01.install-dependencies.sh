@@ -1,22 +1,21 @@
 #!/usr/bin/env bash
 # ==============================================================================
 # SYNOPSIS
-#   Instala ou atualiza todas as ferramentas necessárias para o workshop de
-#   Kubernetes local com k3d em Ubuntu/Debian.
+#   Instala ou atualiza todas as ferramentas necessárias para Kubernetes local
+#   com k3d em Ubuntu/Debian.
 #
 # DESCRIPTION
 #   - Docker Engine não instalado → instala via script oficial.
 #   - k3d, kubectl e Helm → instalam via curl/apt se ausentes.
 #   - Ferramentas já instaladas → prossegue sem alteração.
 #
-#   Por padrão o Docker Engine NÃO é instalado. Use --install-docker para o Engine
-#   (servidor headless) ou --install-docker-desktop para o Docker Desktop com GUI
-#   (recomendado para Ubuntu Desktop).
+#   O Docker Engine é instalado por padrão. Use --install-docker-desktop para a
+#   versão com GUI (recomendado para Ubuntu Desktop). Use --no-docker para pular.
 #
 # USAGE
-#   ./01.install-dependencies.sh                       # instala apenas VS Code, k3d, kubectl e Helm
-#   sudo ./01.install-dependencies.sh --install-docker          # + Docker Engine (headless)
-#   sudo ./01.install-dependencies.sh --install-docker-desktop  # + Docker Desktop (GUI)
+#   sudo ./01.install-dependencies.sh                          # Docker Engine + k3d, kubectl, Helm e VS Code
+#   sudo ./01.install-dependencies.sh --install-docker-desktop # Docker Desktop (GUI) + demais ferramentas
+#        ./01.install-dependencies.sh --no-docker              # pula instalação do Docker
 #
 # NOTES
 #   Execute com sudo para instalar Docker Engine, Docker Desktop ou VS Code.
@@ -25,13 +24,13 @@
 
 set -euo pipefail
 
-INSTALL_DOCKER=false
+INSTALL_DOCKER=true
 INSTALL_DOCKER_DESKTOP=false
 
 for arg in "$@"; do
   case "$arg" in
-    --install-docker)         INSTALL_DOCKER=true ;;
-    --install-docker-desktop) INSTALL_DOCKER_DESKTOP=true ;;
+    --install-docker-desktop) INSTALL_DOCKER=false; INSTALL_DOCKER_DESKTOP=true ;;
+    --no-docker)              INSTALL_DOCKER=false ;;
   esac
 done
 
@@ -258,7 +257,7 @@ elif $INSTALL_DOCKER; then
   install_docker
 else
   write_step "Docker"
-  write_warn "Pulando instalação do Docker (use --install-docker para Engine ou --install-docker-desktop para GUI)."
+  write_warn "Pulando instalação do Docker (use --install-docker-desktop para GUI ou remova --no-docker para o Engine)."
 fi
 
 install_vscode
