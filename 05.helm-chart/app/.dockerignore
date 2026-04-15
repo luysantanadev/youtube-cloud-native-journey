@@ -1,0 +1,32 @@
+# .dockerignore — exclui arquivos desnecessários do contexto Docker
+# Sem este arquivo o contexto chegava a 1,1 GB (node_modules + .output locais).
+# Com ele o contexto cai para ~5 MB, acelerando drasticamente o docker build.
+
+# Dependências locais — reinstaladas limpo dentro do container (Alpine)
+node_modules/
+
+# Output do build local — reconstruído dentro do container
+.output/
+.nuxt/
+.nitro/
+.cache/
+dist/
+
+# Dados de ambiente (nunca devem entrar na imagem)
+.env
+.env.*
+!.env.example
+
+# Git e ferramentas de desenvolvimento
+.git/
+.gitignore
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Editor e IDE
+.vscode/
+.idea/
+*.swp

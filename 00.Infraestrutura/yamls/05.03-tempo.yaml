@@ -1,0 +1,94 @@
+# 05.03-tempo.yaml
+
+tempo:
+  reportingEnabled: false
+  structuredConfig:
+    ingester:
+      lifecycler:
+        ring:
+          replication_factor: 1
+    distributor:
+      ring:
+        kvstore:
+          store: memberlist
+    compactor:
+      ring:
+        kvstore:
+          store: memberlist
+    storage:
+      trace:
+        backend: local
+        local:
+          path: /var/tempo/traces
+        wal:
+          path: /var/tempo/wal
+    overrides:
+      defaults:
+        ingestion:
+          rate_strategy: local
+
+metricsGenerator:
+  enabled: false
+
+gateway:
+  enabled: false
+
+minio:
+  enabled: false
+
+traces:
+  otlp:
+    grpc:
+      enabled: true
+    http:
+      enabled: true
+
+distributor:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi
+
+ingester:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+querier:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi
+
+queryFrontend:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi
+
+compactor:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi

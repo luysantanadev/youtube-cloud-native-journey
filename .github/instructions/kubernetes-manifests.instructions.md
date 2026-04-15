@@ -1,5 +1,5 @@
 ---
-applyTo: 'k8s/**/*.yaml,k8s/**/*.yml,manifests/**/*.yaml,manifests/**/*.yml,deploy/**/*.yaml,deploy/**/*.yml,charts/**/templates/**/*.yaml,charts/**/templates/**/*.yml'
+applyTo: 'k8s/**/*.yaml,k8s/**/*.yml,manifests/**/*.yaml,manifests/**/*.yml,deploy/**/*.yaml,deploy/**/*.yml,charts/**/templates/**/*.yaml,charts/**/templates/**/*.yml,04.fundamentos-kubernetes/**/*.yaml,05.helm-chart/helm/templates/**/*.yaml,00.scripts/yamls/**/*.yaml'
 description: 'Best practices for Kubernetes YAML manifests including labeling conventions, security contexts, pod security, resource management, probes, and validation commands'
 ---
 
@@ -101,6 +101,39 @@ Configure appropriate delays, periods, timeouts, and thresholds for each.
 - `kubectl rollout undo deployment/NAME`
 - `kubectl rollout undo deployment/NAME --to-revision=N`
 - `kubectl rollout history deployment/NAME`
+
+---
+
+## Project-Specific Conventions (k8s-monitoring)
+
+### Labels used in this project
+```yaml
+labels:
+  app: <service-name>        # e.g. nuxt-workshop, workshop-nginx
+  version: "<semver>"        # e.g. "1.0.0"
+```
+
+### Local registry
+All images must be pushed to the k3d registry before deploying:
+```
+workshop-registry.localhost:5001/<image-name>:<tag>
+```
+Scripts in [`01.docker-images/windows/`](../../01.docker-images/windows/) handle build + push.
+
+### Helm chart location
+The production chart lives in [`05.helm-chart/helm/`](../../05.helm-chart/helm/). Raw educational manifests are in [`04.fundamentos-kubernetes/`](../../04.fundamentos-kubernetes/) — do not use them as templates for new work; use the Helm chart instead.
+
+### Ingress
+- Class: `traefik`
+- Local hostname: `nuxt-workshop.local` — must be added to the hosts file (`C:\Windows\System32\drivers\etc\hosts` or `/etc/hosts`) pointing to `127.0.0.1`.
+
+### Pyroscope scrape annotations
+Add to every application Pod that supports profiling:
+```yaml
+annotations:
+  profiles.grafana.com/cpu.scrape: "true"
+  profiles.grafana.com/memory.scrape: "true"
+```
 
 **Restart**:
 - `kubectl rollout restart deployment/NAME`

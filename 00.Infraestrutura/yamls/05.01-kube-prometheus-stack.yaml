@@ -1,0 +1,41 @@
+# Desabilita o que não precisamos agora
+alertmanager:
+  enabled: false
+
+# Prometheus — leve
+prometheus:
+  prometheusSpec:
+    retention: 6h          # não acumula dados, é workshop
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 2Gi
+
+# Grafana — já configurado com datasources via sidecar
+grafana:
+  adminPassword: "workshop123"
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+  # Habilita sidecar para descobrir datasources automaticamente
+  sidecar:
+    datasources:
+      enabled: true
+      searchNamespace: monitoring
+
+# Node exporter e kube-state-metrics já vêm habilitados por padrão
+# Eles expõem métricas do cluster (nodes, pods, deployments etc)

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>K8s Workshop &mdash; Variáveis de Ambiente</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <header class="header">
+      <span class="header__badge">Workshop</span>
+      <h1 class="header__title">Variáveis de Ambiente</h1>
+      <p class="header__subtitle">Kubernetes for Developers &mdash; DevParaná</p>
+    </header>
+
+    <main class="main">
+      <section class="card">
+        <h2 class="card__title">Variáveis lidas pelo container</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Variável</th>
+              <th>Valor atual</th>
+              <th>Origem sugerida</th>
+            </tr>
+          </thead>
+          <tbody id="env-table-body">
+            <tr><td colspan="3" class="loading">Carregando&hellip;</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="card">
+        <h2 class="card__title">Como sobrescrever ao rodar o container</h2>
+        <div class="tip">
+          Use a flag <code>-e</code> no <code>docker run</code> para passar variáveis individualmente:<br/><br/>
+          <code>docker run --rm -p 3000:3000 -e APP_ENV=production -e APP_MESSAGE="Viva o K8s!" workshop-envs:0.1.0</code><br/><br/>
+          Ou use um arquivo <code>.env</code>:<br/><br/>
+          <code>docker run --rm -p 3000:3000 --env-file .env workshop-envs:0.1.0</code><br/><br/>
+          No Kubernetes, variáveis de ambiente vêm de <code>ConfigMap</code> e <code>Secret</code>, sem alterar a imagem.
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>Imagem: <code>workshop-envs:0.1.0</code> &mdash; runtime Node.js <span id="node-version">&hellip;</span></p>
+    </footer>
+
+    <script src="/client.js" defer></script>
+  </body>
+</html>

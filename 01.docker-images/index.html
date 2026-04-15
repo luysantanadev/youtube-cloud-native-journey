@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>K8s Workshop &mdash; Hello from Docker</title>
+    <link rel="stylesheet" href="index.css" />
+  </head>
+  <body>
+    <header class="header">
+      <span class="header__badge">Workshop</span>
+      <h1 class="header__title">Hello from Docker</h1>
+      <p class="header__subtitle">Kubernetes for Developers &mdash; DevParaná</p>
+    </header>
+
+    <main class="main">
+      <section class="card">
+        <h2 class="card__title">Container info</h2>
+        <ul class="info-list" id="info-list">
+          <li class="info-list__item">
+            <span class="info-list__label">Served by</span>
+            <span class="info-list__value">nginx:alpine</span>
+          </li>
+          <li class="info-list__item">
+            <span class="info-list__label">Port</span>
+            <span class="info-list__value">8080</span>
+          </li>
+          <li class="info-list__item">
+            <span class="info-list__label">Loaded at</span>
+            <span class="info-list__value" id="loaded-at">&mdash;</span>
+          </li>
+        </ul>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>Imagem disponível em <code>localhost:8181/library/workshop-nginx:latest</code></p>
+    </footer>
+
+    <script src="index.js"></script>
+  </body>
+</html>
