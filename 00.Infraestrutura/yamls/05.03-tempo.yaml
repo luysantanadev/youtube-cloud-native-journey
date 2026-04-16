@@ -1,94 +1,34 @@
 # 05.03-tempo.yaml
+# Usando grafana/tempo (monolitico) — o chart tempo-distributed foi descontinuado
+# Referencia: https://artifacthub.io/packages/helm/grafana/tempo
+# Service name: tempo  |  Query HTTP: 3200  |  OTLP gRPC: 4317  |  OTLP HTTP: 4318
 
 tempo:
   reportingEnabled: false
-  structuredConfig:
-    ingester:
-      lifecycler:
-        ring:
-          replication_factor: 1
-    distributor:
-      ring:
-        kvstore:
-          store: memberlist
-    compactor:
-      ring:
-        kvstore:
-          store: memberlist
-    storage:
-      trace:
-        backend: local
-        local:
-          path: /var/tempo/traces
-        wal:
-          path: /var/tempo/wal
-    overrides:
-      defaults:
-        ingestion:
-          rate_strategy: local
 
-metricsGenerator:
-  enabled: false
+  # Padrao e 1024 MB; reduzido para nao desperdicar RAM no workshop
+  memBallastSizeMbs: 64
 
-gateway:
-  enabled: false
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: "0.0.0.0:4317"
+        http:
+          endpoint: "0.0.0.0:4318"
 
-minio:
-  enabled: false
+  storage:
+    trace:
+      backend: local
+      local:
+        path: /var/tempo/traces
+      wal:
+        path: /var/tempo/wal
 
-traces:
-  otlp:
-    grpc:
-      enabled: true
-    http:
-      enabled: true
-
-distributor:
-  replicas: 1
   resources:
     requests:
-      cpu: 50m
-      memory: 64Mi
-    limits:
-      cpu: 200m
-      memory: 128Mi
-
-ingester:
-  replicas: 1
-  resources:
-    requests:
-      cpu: 50m
-      memory: 128Mi
-    limits:
-      cpu: 200m
+      cpu: 100m
       memory: 256Mi
-
-querier:
-  replicas: 1
-  resources:
-    requests:
-      cpu: 50m
-      memory: 64Mi
     limits:
-      cpu: 200m
-      memory: 128Mi
-
-queryFrontend:
-  replicas: 1
-  resources:
-    requests:
-      cpu: 50m
-      memory: 64Mi
-    limits:
-      cpu: 200m
-      memory: 128Mi
-
-compactor:
-  replicas: 1
-  resources:
-    requests:
-      cpu: 50m
-      memory: 64Mi
-    limits:
-      cpu: 200m
-      memory: 128Mi
+      cpu: 500m
+      memory: 512Mi

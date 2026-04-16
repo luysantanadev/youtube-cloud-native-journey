@@ -2,17 +2,17 @@
 alertmanager:
   enabled: false
 
-# Prometheus — leve
+# Prometheus — dimensionado para 4 CPU / 8 GB (aumentar limits em maquinas com 16 GB)
 prometheus:
   prometheusSpec:
     retention: 6h          # não acumula dados, é workshop
     resources:
       requests:
-        cpu: 100m
-        memory: 256Mi
-      limits:
-        cpu: 500m
+        cpu: 200m
         memory: 512Mi
+      limits:
+        cpu: 1000m
+        memory: 1Gi
     storageSpec:
       volumeClaimTemplate:
         spec:
@@ -23,14 +23,14 @@ prometheus:
 
 # Grafana — já configurado com datasources via sidecar
 grafana:
-  adminPassword: "workshop123"
+  adminPassword: "workshop123"  # senha local de dev — nao usar em producao
   resources:
     requests:
-      cpu: 50m
-      memory: 128Mi
-    limits:
-      cpu: 200m
+      cpu: 100m
       memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
   # Habilita sidecar para descobrir datasources automaticamente
   sidecar:
     datasources:

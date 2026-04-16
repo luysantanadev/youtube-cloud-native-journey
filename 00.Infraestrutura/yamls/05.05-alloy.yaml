@@ -54,18 +54,19 @@ alloy:
 
       otelcol.exporter.otlp "tempo" {
         client {
-          endpoint = "tempo-distributor:4317"
+          // service do grafana/tempo monolitico; release name = tempo
+          endpoint = "tempo:4317"
           tls { insecure = true }
         }
       }
 
   resources:
     requests:
-      cpu: 50m
-      memory: 128Mi
+      cpu: 100m
+      memory: 192Mi
     limits:
-      cpu: 200m
-      memory: 256Mi
+      cpu: 500m
+      memory: 384Mi
 
   extraPorts:
     - name: otlp-grpc

@@ -22,7 +22,7 @@ data:
       - name: Tempo
         type: tempo
         uid: tempo
-        url: http://tempo-query-frontend:3200
+        url: http://tempo:3200
         isDefault: false
         jsonData:
           tracesToLogsV2:
