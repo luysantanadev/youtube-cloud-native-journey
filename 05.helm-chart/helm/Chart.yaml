@@ -1,7 +1,0 @@
-apiVersion: v2
-name: nuxt-workshop
-description: Helm chart para a aplicação Nuxt Workshop — dashboard full-stack com Nuxt 4, Prisma e OpenTelemetry
-type: application
-version: 0.1.0
-appVersion: "1.0.0"
-
