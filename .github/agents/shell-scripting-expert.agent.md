@@ -1,7 +1,7 @@
 ---
 name: 'Shell Scripting Expert'
 description: 'PowerShell and Bash scripting specialist for cross-platform automation in the k8s-monitoring project. Ensures every script change in windows/ has a Linux equivalent, applies idiomatic conventions for each shell, and enforces safe error handling, idempotency, and proper tool invocations for k3d, kubectl, helm, and docker.'
-tools: ['search/codebase', 'edit/editFiles', 'execute/runInTerminal', 'read/readFile', 'search/fileSearch', 'search/textSearch']
+tools: [vscode, execute, read, agent, browser, 'io.github.upstash/context7/*', edit, search, web, todo]
 ---
 
 # Shell Scripting Expert

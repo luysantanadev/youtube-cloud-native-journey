@@ -3,13 +3,13 @@
     Cria o cluster PostgreSQL via CloudNativePG (Helm) e abre um port-forward resiliente para acesso local.
 
 .DESCRIPTION
-    - Verifica o CNPG operator.
+    - Instala e verifica o CNPG operator via Helm (idempotente).
     - Cria namespace, Secret de credenciais e deploy do cluster via Helm.
     - Testa a conexao via pod interno antes de subir o port-forward permanente.
     - Port-forward se reconecta automaticamente em caso de queda inesperada.
 
 .NOTES
-    Pre-requisito: CNPG operator em execucao (03.setup-k3d-multi-node.ps1), kubectl e helm no PATH.
+    Pre-requisito: cluster k3d 'monitoramento' em execucao (03.criar-cluster-k3d.ps1), kubectl e helm no PATH.
 #>
 
 param(
@@ -36,27 +36,46 @@ $ClusterName = "$ReleaseName-cluster"   # CNPG chart names resources as <release
 $rwSvc       = "$ClusterName-rw"
 
 # ---------------------------------------------------------------------------
-# 1. Verify CNPG operator is present
+# 1. Instalar CloudNativePG operator
+# ---------------------------------------------------------------------------
+Write-Step "Adicionando repo do CloudNativePG..."
+
+helm repo add cnpg https://cloudnative-pg.github.io/charts 2>$null | Out-Null
+helm repo update | Out-Null
+
+Write-Step "Instalando CloudNativePG operator..."
+
+helm upgrade --install cnpg cnpg/cloudnative-pg `
+    --namespace cnpg-system `
+    --create-namespace `
+    --wait `
+    --timeout 120s
+
+if ($LASTEXITCODE -ne 0) { Write-Fail "Falha ao instalar o CloudNativePG operator." }
+Write-Success "CloudNativePG operator instalado."
+
+# ---------------------------------------------------------------------------
+# 2. Verificar CloudNativePG operator
 # ---------------------------------------------------------------------------
 Write-Step "Verificando CloudNativePG operator..."
 
 $cnpgReady = kubectl -n cnpg-system get deployment cnpg-cloudnative-pg `
     -o jsonpath='{.status.readyReplicas}' 2>&1
 if ([int]$cnpgReady -lt 1) {
-    Write-Fail "CNPG operator nao esta pronto (replicas prontas: '$cnpgReady'). Rode '.\scripts\03.setup-k3d-multi-node.ps1' primeiro."
+    Write-Fail "CNPG operator nao esta pronto (replicas prontas: '$cnpgReady'). Verifique os logs: kubectl -n cnpg-system get pods"
 }
 Write-Success "CNPG operator pronto ($cnpgReady replica(s) pronta(s))."
 
 # ---------------------------------------------------------------------------
-# 2. Create namespace
+# 3. Criar namespace
 # ---------------------------------------------------------------------------
 Write-Step "Criando namespace '$Namespace'..."
 kubectl create namespace $Namespace --dry-run=client -o yaml | kubectl apply -f - | Out-Null
 Write-Success "Namespace pronto."
 
 # ---------------------------------------------------------------------------
-# 3. Create credentials Secret (Kubernetes Secret, not plain-text in values)
-#    CNPG expects: username and password keys
+# 4. Criar Secret de credenciais
+#    CNPG espera as chaves: username e password
 # ---------------------------------------------------------------------------
 Write-Step "Criando Secret de credenciais '$SecretName'..."
 
@@ -68,7 +87,7 @@ kubectl -n $Namespace create secret generic $SecretName `
 Write-Success "Secret criado."
 
 # ---------------------------------------------------------------------------
-# 4. Install / upgrade the CNPG cluster chart
+# 5. Instalar / atualizar o cluster CNPG via Helm
 # ---------------------------------------------------------------------------
 Write-Step "Instalando cluster PostgreSQL via Helm (release: $ReleaseName)..."
 
@@ -90,7 +109,7 @@ if ($LASTEXITCODE -ne 0) { Write-Fail "Helm install falhou. Verifique os logs ac
 Write-Success "Cluster PostgreSQL pronto."
 
 # ---------------------------------------------------------------------------
-# 5. Show connection info
+# 6. Exibir informacoes de conexao
 # ---------------------------------------------------------------------------
 Write-Step "Servicos disponiveis no namespace '$Namespace'..."
 kubectl -n $Namespace get cluster,pods,svc
@@ -108,7 +127,7 @@ if ($SkipForward) {
 }
 
 # ---------------------------------------------------------------------------
-# 6. Teste de conexao via pod interno + port-forward resiliente
+# 7. Teste de conexao via pod interno + port-forward resiliente
 # ---------------------------------------------------------------------------
 Write-Host ""
 Write-Host "============================================" -ForegroundColor Green

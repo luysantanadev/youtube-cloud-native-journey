@@ -1,19 +1,19 @@
 <#
 .SYNOPSIS
-    Cria o cluster k3d 'workshop' com Traefik e CloudNativePG para o laboratório local de Kubernetes.
+    Cria o cluster k3d 'monitoramento' com Traefik para o laboratório local de Kubernetes.
 
 .DESCRIPTION
-    - Remove cluster anterior 'workshop' se existir.
+    - Remove cluster anterior 'monitoramento' se existir.
     - Cria cluster k3d multi-node com loadbalancer nas portas 80/443.
     - Cria o registry local junto com o cluster (--registry-create), conforme
       o padrao da documentacao k3d. O k3d configura automaticamente o
       registries.yaml em todos os nos — nenhum passo manual necessario.
-    - Instala Traefik (ingress) e CloudNativePG operator via Helm.
+    - Instala Traefik (ingress) via Helm.
     - Idempotente: pode ser reexecutado a qualquer momento para resetar o ambiente.
 
 .NOTES
     Pré-requisito: Docker Desktop em execução, k3d, kubectl e helm no PATH.
-    Execute após 02.verify-installs.ps1 confirmar tudo verde.
+    Execute após 02.verificar-instalacoes.ps1 confirmar tudo verde.
 #>
 
 $ErrorActionPreference = "Stop"
@@ -42,28 +42,59 @@ if ($LASTEXITCODE -ne 0) {
 Write-Success "Todos os pre-requisitos encontrados."
 
 # ---------------------------------------------------------------------------
+# Hardware detection — calcula o budget recomendado para o Docker Desktop
+# e as reservas do kubelet proporcionais ao hardware real da maquina.
+# ---------------------------------------------------------------------------
+$sysInfo     = Get-CimInstance Win32_ComputerSystem
+$totalCpus   = [int]$sysInfo.NumberOfLogicalProcessors
+$totalRamGb  = [math]::Floor($sysInfo.TotalPhysicalMemory / 1GB)
+
+# Deixa 1 CPU e 2 GB para o sistema operacional (minimos absolutos)
+$dockerCpus  = [math]::Max(2, $totalCpus - 1)
+$dockerRamGb = [math]::Max(4, $totalRamGb - 2)
+
+# system-reserved escala com a RAM total: mais RAM => mais folga para o OS
+$sysReservedMem = switch ($true) {
+    ($totalRamGb -ge 24) { '1024Mi'; break }
+    ($totalRamGb -ge 12) { '512Mi';  break }
+    default              { '256Mi' }
+}
+
+Write-Host ""
+Write-Host "  Hardware detectado: $totalCpus CPUs  /  ${totalRamGb} GB RAM" -ForegroundColor Cyan
+Write-Warn "Recomendado no Docker Desktop (Settings > Resources):"
+Write-Warn "  CPUs   : $dockerCpus  (de $totalCpus)"
+Write-Warn "  Memoria: ${dockerRamGb} GB  (de ${totalRamGb} GB)"
+
+# ---------------------------------------------------------------------------
 # 1. Limpar cluster anterior (se existir)
 # ---------------------------------------------------------------------------
 Write-Step "Verificando cluster existente..."
 
-$existing = k3d cluster list -o json | ConvertFrom-Json | Where-Object { $_.name -eq "workshop" }
+$existing = k3d cluster list -o json | ConvertFrom-Json | Where-Object { $_.name -eq "monitoramento" }
 if ($existing) {
-    Write-Host "    Cluster 'workshop' encontrado. Deletando..." -ForegroundColor Yellow
-    k3d cluster delete workshop
+    Write-Host "    Cluster 'monitoramento' encontrado. Deletando..." -ForegroundColor Yellow
+    k3d cluster delete monitoramento
     if ($LASTEXITCODE -ne 0) { Write-Fail "Falha ao deletar o cluster anterior." }
 }
 
 # ---------------------------------------------------------------------------
 # 2. Criar cluster
 # ---------------------------------------------------------------------------
-Write-Step "Criando cluster k3d 'workshop'..."
+Write-Step "Criando cluster k3d 'monitoramento'..."
 
-k3d cluster create workshop `
+k3d cluster create monitoramento `
     --port "80:80@loadbalancer" `
     --port "443:443@loadbalancer" `
     --agents 2 `
     --k3s-arg "--disable=traefik@server:0" `
-    --registry-create workshop-registry.localhost:0.0.0.0:5001 `
+    --k3s-arg "--kubelet-arg=system-reserved=cpu=100m,memory=${sysReservedMem}@server:0" `
+    --k3s-arg "--kubelet-arg=kube-reserved=cpu=100m,memory=128Mi@server:0" `
+    --k3s-arg "--kubelet-arg=eviction-hard=memory.available<300Mi@server:0" `
+    --k3s-arg "--kubelet-arg=system-reserved=cpu=100m,memory=${sysReservedMem}@agent:*" `
+    --k3s-arg "--kubelet-arg=kube-reserved=cpu=100m,memory=128Mi@agent:*" `
+    --k3s-arg "--kubelet-arg=eviction-hard=memory.available<300Mi@agent:*" `
+    --registry-create monitoramento-registry.localhost:0.0.0.0:5001 `
     --kubeconfig-update-default `
     --kubeconfig-switch-context `
     --wait
@@ -84,7 +115,7 @@ if ($currentServer -match ':(\d+)$') {
 }
 
 $newServer = "https://127.0.0.1:$apiPort"
-kubectl config set-cluster k3d-workshop --server=$newServer
+kubectl config set-cluster k3d-monitoramento --server=$newServer
 
 if ($LASTEXITCODE -ne 0) { Write-Fail "Falha ao corrigir o kubeconfig." }
 Write-Success "Kubeconfig corrigido: $newServer"
@@ -126,59 +157,42 @@ if ($LASTEXITCODE -ne 0) { Write-Fail "Falha ao instalar o Traefik." }
 Write-Success "Traefik instalado."
 
 # ---------------------------------------------------------------------------
-# 6. Instalar CloudNativePG operator
-# ---------------------------------------------------------------------------
-Write-Step "Adicionando repo do CloudNativePG..."
-
-helm repo add cnpg https://cloudnative-pg.github.io/charts | Out-Null
-helm repo update | Out-Null
-
-Write-Step "Instalando CloudNativePG operator..."
-
-helm upgrade --install cnpg cnpg/cloudnative-pg `
-    --namespace cnpg-system `
-    --create-namespace `
-    --wait `
-    --timeout 120s
-
-if ($LASTEXITCODE -ne 0) { Write-Fail "Falha ao instalar o CloudNativePG operator." }
-Write-Success "CloudNativePG operator instalado."
-
-# ---------------------------------------------------------------------------
-# 7. Verificação final do cluster
+# 6. Verificação final do cluster
 # ---------------------------------------------------------------------------
 Write-Step "Verificando cluster..."
 
 kubectl get nodes
 Write-Host ""
 kubectl get pods -n traefik
-Write-Host ""
-kubectl get pods -n cnpg-system
 
 # ---------------------------------------------------------------------------
-# 8. Resumo final
+# 7. Resumo final
 # ---------------------------------------------------------------------------
 $nodeCount = @(kubectl get nodes --no-headers).Count
 
 Write-Host ""
 Write-Host "============================================" -ForegroundColor Green
-Write-Host " Cluster pronto para o workshop!" -ForegroundColor Green
+Write-Host " Cluster pronto para o laboratorio!" -ForegroundColor Green
 Write-Host "============================================" -ForegroundColor Green
 Write-Host ""
 Write-Host "Nodes:        $nodeCount node(s) prontos"
 Write-Host "API Server:   $newServer"
 Write-Host "Traefik:      http://localhost  (porta 80)"
 Write-Host "              https://localhost (porta 443)"
-Write-Host "CloudNativePG: instalado em cnpg-system"
+Write-Host ""
+Write-Host "Reservas por node (kubelet):"
+Write-Host "  system-reserved : cpu=100m, memory=$sysReservedMem"
+Write-Host "  kube-reserved   : cpu=100m, memory=128Mi"
+Write-Host "  eviction-hard   : memory.available < 300Mi"
 Write-Host ""
 Write-Host "Registry local:"
 Write-Host "  Push do host    : localhost:5001"
-Write-Host "  Dentro dos pods : k3d-workshop-registry.localhost:5001"
+Write-Host "  Dentro dos pods : monitoramento-registry.localhost:5001"
 Write-Host "  Sem autenticacao. Sem alteracao no daemon.json."
 Write-Host ""
 Write-Host "Proximo passo:"
 Write-Host "  kubectl apply -f scripts/teste.yaml"
 Write-Host ""
 Write-Host "Para resetar o cluster a qualquer momento:"
-Write-Host "  .\scripts\03.setup-k3d-multi-node.ps1"
+Write-Host "  .\03.criar-cluster-k3d.ps1"
 Write-Host ""
