@@ -1,0 +1,149 @@
+# 05.07-ingresses.yaml
+# Expoe os servicos de monitoramento via Traefik, eliminando a necessidade de port-forward.
+#
+# HTTP (porta 80 — Ingress padrao):
+#   grafana.monitoramento.local     → kube-prometheus-stack-grafana:80
+#   loki.monitoramento.local        → loki-gateway:80
+#   tempo.monitoramento.local       → tempo:3200
+#   pyroscope.monitoramento.local   → pyroscope:4040
+#
+# TCP passthrough (IngressRouteTCP — entrypoints declarados no Traefik):
+#   localhost:4317  → alloy:4317  (OTLP gRPC)
+#   localhost:4318  → alloy:4318  (OTLP HTTP)
+#
+# Entradas necessarias no hosts do Windows
+# (C:\Windows\System32\drivers\etc\hosts):
+#   127.0.0.1   grafana.monitoramento.local
+#   127.0.0.1   loki.monitoramento.local
+#   127.0.0.1   tempo.monitoramento.local
+#   127.0.0.1   pyroscope.monitoramento.local
+
+# ── Grafana ──────────────────────────────────────────────────────────────────
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: grafana
+  namespace: monitoring
+  labels:
+    app: grafana
+    version: "1.0.0"
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: grafana.monitoramento.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: kube-prometheus-stack-grafana
+                port:
+                  number: 80
+---
+# ── Loki (push e query via gateway) ──────────────────────────────────────────
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: loki
+  namespace: monitoring
+  labels:
+    app: loki
+    version: "1.0.0"
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: loki.monitoramento.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: loki-gateway
+                port:
+                  number: 80
+---
+# ── Tempo (query HTTP) ────────────────────────────────────────────────────────
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: tempo
+  namespace: monitoring
+  labels:
+    app: tempo
+    version: "1.0.0"
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: tempo.monitoramento.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: tempo
+                port:
+                  number: 3200
+---
+# ── Pyroscope (push e query) ──────────────────────────────────────────────────
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: pyroscope
+  namespace: monitoring
+  labels:
+    app: pyroscope
+    version: "1.0.0"
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: pyroscope.monitoramento.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: pyroscope
+                port:
+                  number: 4040
+---
+# ── Alloy — OTLP gRPC (porta 4317, TCP passthrough) ──────────────────────────
+# Entrypoint 'otlpgrpc' declarado no Traefik em 03.criar-cluster-k3d.ps1
+apiVersion: traefik.io/v1alpha1
+kind: IngressRouteTCP
+metadata:
+  name: alloy-otlp-grpc
+  namespace: monitoring
+  labels:
+    app: alloy
+    version: "1.0.0"
+spec:
+  entryPoints:
+    - otlpgrpc
+  routes:
+    - match: HostSNI(`*`)
+      services:
+        - name: alloy
+          port: 4317
+---
+# ── Alloy — OTLP HTTP (porta 4318, TCP passthrough) ──────────────────────────
+# Entrypoint 'otlphttp' declarado no Traefik em 03.criar-cluster-k3d.ps1
+apiVersion: traefik.io/v1alpha1
+kind: IngressRouteTCP
+metadata:
+  name: alloy-otlp-http
+  namespace: monitoring
+  labels:
+    app: alloy
+    version: "1.0.0"
+spec:
+  entryPoints:
+    - otlphttp
+  routes:
+    - match: HostSNI(`*`)
+      services:
+        - name: alloy
+          port: 4318

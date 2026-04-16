@@ -123,7 +123,6 @@ if ($action -eq '1') {
     # --- Derivar valores ---
     $Password  = New-RandomPassword
     $MasterSvc = "$InstanceName-redis-master"
-    $LocalPort = Get-FreePort
 
     # --- Helm install ---
     Write-Step "Instalando Redis '$InstanceName' no namespace '$Namespace'..."
@@ -140,6 +139,30 @@ if ($action -eq '1') {
     if ($LASTEXITCODE -ne 0) { Write-Fail "Helm install falhou. Verifique os logs acima." }
     Write-Success "Instancia Redis '$InstanceName' criada."
 
+    # --- IngressRouteTCP (expoe localhost:6379 via Traefik) ---
+    Write-Step "Aplicando IngressRouteTCP para Redis (porta 6379)..."
+    $tcpManifest = @"
+apiVersion: traefik.io/v1alpha1
+kind: IngressRouteTCP
+metadata:
+  name: redis-$InstanceName
+  namespace: $Namespace
+  labels:
+    app: $InstanceName
+    managed-by: 06.redis
+spec:
+  entryPoints:
+    - redis
+  routes:
+    - match: HostSNI(``*``)
+      services:
+        - name: $MasterSvc
+          port: 6379
+"@
+    $tcpManifest | kubectl apply -f -
+    if ($LASTEXITCODE -ne 0) { Write-Warn "IngressRouteTCP nao aplicado. Porta 6379 pode ja estar em uso por outra instancia." }
+    else { Write-Success "IngressRouteTCP aplicado. Redis acessivel em localhost:6379." }
+
     # --- Resumo ---
     Write-Host ""
     Write-Host "============================================" -ForegroundColor Green
@@ -153,11 +176,10 @@ if ($action -eq '1') {
     Write-Host "  Connection string interna:" -ForegroundColor Yellow
     Write-Host "    redis://:${Password}@${MasterSvc}.${Namespace}.svc.cluster.local:6379"
     Write-Host ""
-    Write-Host "  Comando para abrir o port-forward (porta $LocalPort):" -ForegroundColor Yellow
-    Write-Host "    kubectl port-forward -n $Namespace svc/$MasterSvc ${LocalPort}:6379"
+    Write-Host "  REDIS_URL local (via Traefik):" -ForegroundColor Yellow
+    Write-Host "    redis://:${Password}@localhost:6379"
     Write-Host ""
-    Write-Host "  REDIS_URL local:" -ForegroundColor Yellow
-    Write-Host "    redis://:${Password}@localhost:${LocalPort}"
+    Write-Warn "Nota: apenas uma instancia Redis pode ser exposta na porta 6379 por vez."
     Write-Host ""
 }
 
@@ -194,6 +216,8 @@ if ($action -eq '2') {
 
     helm uninstall $release --namespace $ns
     if ($LASTEXITCODE -ne 0) { Write-Fail "Falha ao remover o release Helm '$release'." }
+
+    kubectl -n $ns delete ingressroutetcp "redis-$release" --ignore-not-found | Out-Null
 
     # O chart bitnami/redis nao remove o PVC automaticamente; avisar o usuario
     Write-Warn "PVC do Redis pode ter ficado para tras. Para remover:"

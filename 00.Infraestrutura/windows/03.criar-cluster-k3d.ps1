@@ -86,6 +86,11 @@ Write-Step "Criando cluster k3d 'monitoramento'..."
 k3d cluster create monitoramento `
     --port "80:80@loadbalancer" `
     --port "443:443@loadbalancer" `
+    --port "4317:4317@loadbalancer" `
+    --port "4318:4318@loadbalancer" `
+    --port "5432:5432@loadbalancer" `
+    --port "6379:6379@loadbalancer" `
+    --port "27017:27017@loadbalancer" `
     --agents 2 `
     --k3s-arg "--disable=traefik@server:0" `
     --k3s-arg "--kubelet-arg=system-reserved=cpu=100m,memory=${sysReservedMem}@server:0" `
@@ -150,6 +155,26 @@ helm upgrade --install traefik traefik/traefik `
     --set providers.kubernetesCRD.allowCrossNamespace=true `
     --set providers.kubernetesIngress.enabled=true `
     --set service.type=ClusterIP `
+    --set "ports.otlpgrpc.port=4317" `
+    --set "ports.otlpgrpc.hostPort=4317" `
+    --set "ports.otlpgrpc.expose.default=true" `
+    --set "ports.otlpgrpc.exposedPort=4317" `
+    --set "ports.otlphttp.port=4318" `
+    --set "ports.otlphttp.hostPort=4318" `
+    --set "ports.otlphttp.expose.default=true" `
+    --set "ports.otlphttp.exposedPort=4318" `
+    --set "ports.postgres.port=5432" `
+    --set "ports.postgres.hostPort=5432" `
+    --set "ports.postgres.expose.default=true" `
+    --set "ports.postgres.exposedPort=5432" `
+    --set "ports.redis.port=6379" `
+    --set "ports.redis.hostPort=6379" `
+    --set "ports.redis.expose.default=true" `
+    --set "ports.redis.exposedPort=6379" `
+    --set "ports.mongodb.port=27017" `
+    --set "ports.mongodb.hostPort=27017" `
+    --set "ports.mongodb.expose.default=true" `
+    --set "ports.mongodb.exposedPort=27017" `
     --wait `
     --timeout 120s
 
@@ -179,6 +204,11 @@ Write-Host "Nodes:        $nodeCount node(s) prontos"
 Write-Host "API Server:   $newServer"
 Write-Host "Traefik:      http://localhost  (porta 80)"
 Write-Host "              https://localhost (porta 443)"
+Write-Host "              otlp-grpc         (porta 4317)"
+Write-Host "              otlp-http         (porta 4318)"
+Write-Host "              postgres          (porta 5432)"
+Write-Host "              redis             (porta 6379)"
+Write-Host "              mongodb           (porta 27017)"
 Write-Host ""
 Write-Host "Reservas por node (kubelet):"
 Write-Host "  system-reserved : cpu=100m, memory=$sysReservedMem"

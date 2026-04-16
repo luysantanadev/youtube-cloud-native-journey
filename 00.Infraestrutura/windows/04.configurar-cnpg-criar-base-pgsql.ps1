@@ -138,7 +138,6 @@ if ($action -eq '1') {
     $Password   = New-RandomPassword
     $SecretName = "$Database-credentials"
     $rwSvc      = "$Database-cluster-rw"
-    $LocalPort  = Get-FreePort
 
     # --- Secret de credenciais ---
     Write-Step "Criando Secret de credenciais '$SecretName'..."
@@ -164,6 +163,30 @@ if ($action -eq '1') {
     if ($LASTEXITCODE -ne 0) { Write-Fail "Helm install falhou. Verifique os logs acima." }
     Write-Success "Cluster PostgreSQL pronto."
 
+    # --- IngressRouteTCP (expoe localhost:5432 via Traefik) ---
+    Write-Step "Aplicando IngressRouteTCP para PostgreSQL (porta 5432)..."
+    $tcpManifest = @"
+apiVersion: traefik.io/v1alpha1
+kind: IngressRouteTCP
+metadata:
+  name: postgres-$Database
+  namespace: $Namespace
+  labels:
+    app: $Database
+    managed-by: 04.configurar-cnpg-criar-base-pgsql
+spec:
+  entryPoints:
+    - postgres
+  routes:
+    - match: HostSNI(``*``)
+      services:
+        - name: $rwSvc
+          port: 5432
+"@
+    $tcpManifest | kubectl apply -f -
+    if ($LASTEXITCODE -ne 0) { Write-Warn "IngressRouteTCP nao aplicado. Porta 5432 pode ja estar em uso por outra instancia." }
+    else { Write-Success "IngressRouteTCP aplicado. PostgreSQL acessivel em localhost:5432." }
+
     # --- Resumo ---
     Write-Host ""
     Write-Host "============================================" -ForegroundColor Green
@@ -178,11 +201,10 @@ if ($action -eq '1') {
     Write-Host "  Connection string interna:" -ForegroundColor Yellow
     Write-Host "    postgresql://${Username}:${Password}@${rwSvc}.${Namespace}.svc.cluster.local:5432/${Database}"
     Write-Host ""
-    Write-Host "  Comando para abrir o port-forward (porta $LocalPort):" -ForegroundColor Yellow
-    Write-Host "    kubectl port-forward -n $Namespace svc/$rwSvc ${LocalPort}:5432"
+    Write-Host "  DATABASE_URL local (via Traefik):" -ForegroundColor Yellow
+    Write-Host "    postgresql://${Username}:${Password}@localhost:5432/${Database}"
     Write-Host ""
-    Write-Host "  DATABASE_URL local:" -ForegroundColor Yellow
-    Write-Host "    postgresql://${Username}:${Password}@localhost:${LocalPort}/${Database}"
+    Write-Warn "Nota: apenas uma instancia PostgreSQL pode ser exposta na porta 5432 por vez."
     Write-Host ""
 }
 
@@ -221,6 +243,7 @@ if ($action -eq '2') {
     if ($LASTEXITCODE -ne 0) { Write-Fail "Falha ao remover o release Helm '$release'." }
 
     kubectl -n $ns delete secret "$release-credentials" --ignore-not-found | Out-Null
+    kubectl -n $ns delete ingressroutetcp "postgres-$release" --ignore-not-found | Out-Null
 
     Write-Success "Base '$release' removida do namespace '$ns'."
     Write-Host ""

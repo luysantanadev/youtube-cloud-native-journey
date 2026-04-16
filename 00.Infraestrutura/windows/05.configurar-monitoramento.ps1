@@ -8,7 +8,7 @@
 .NOTES
     Arquivo : 05.configurar-monitoramento.ps1
     Prereqs : cluster monitoramento em execucao (03.criar-cluster-k3d.ps1)
-    Proximo : kubectl port-forward -n monitoring svc/kube-prometheus-stack-grafana 3000:80
+    Proximo : adicionar entradas no hosts e acessar http://grafana.monitoramento.local
 #>
 [CmdletBinding()]
 param()
@@ -68,15 +68,33 @@ Write-Host "`nAplicando datasources extras no Grafana..." -ForegroundColor Cyan
 $DatasourceFile = Join-Path $YamlsDir '05.06-grafana-datasource.yaml'
 kubectl apply -f $DatasourceFile
 
+# ── Ingresses (Traefik) ───────────────────────────────────────────────────────
+Write-Host "`nAplicando Ingresses e IngressRoutesTCP..." -ForegroundColor Cyan
+$IngressFile = Join-Path $YamlsDir '05.07-ingresses.yaml'
+kubectl apply -f $IngressFile
+
 # ── Resumo ────────────────────────────────────────────────────────────────────
 Write-Host ""
 Write-Host "============================================================" -ForegroundColor Green
 Write-Host " Stack de monitoramento instalado com sucesso!" -ForegroundColor Green
 Write-Host "============================================================" -ForegroundColor Green
 Write-Host ""
-Write-Host " Para acessar o Grafana execute:" -ForegroundColor Yellow
-Write-Host "   kubectl port-forward -n monitoring svc/kube-prometheus-stack-grafana 3000:80" -ForegroundColor White
+Write-Host " Adicione as entradas abaixo no arquivo hosts do Windows:" -ForegroundColor Yellow
+Write-Host " C:\Windows\System32\drivers\etc\hosts" -ForegroundColor Gray
 Write-Host ""
-Write-Host " Grafana: http://localhost:3000" -ForegroundColor Cyan
-Write-Host " Usuario: admin  |  Senha: workshop123" -ForegroundColor Cyan
+Write-Host "   127.0.0.1   grafana.monitoramento.local" -ForegroundColor White
+Write-Host "   127.0.0.1   loki.monitoramento.local" -ForegroundColor White
+Write-Host "   127.0.0.1   tempo.monitoramento.local" -ForegroundColor White
+Write-Host "   127.0.0.1   pyroscope.monitoramento.local" -ForegroundColor White
+Write-Host ""
+Write-Host " Acesso via browser:" -ForegroundColor Yellow
+Write-Host "   Grafana    http://grafana.monitoramento.local       admin / workshop123" -ForegroundColor Cyan
+Write-Host "   Tempo      http://tempo.monitoramento.local" -ForegroundColor Cyan
+Write-Host "   Pyroscope  http://pyroscope.monitoramento.local" -ForegroundColor Cyan
+Write-Host "   Loki       http://loki.monitoramento.local" -ForegroundColor Cyan
+Write-Host ""
+Write-Host " Variaveis de ambiente para a aplicacao local:" -ForegroundColor Yellow
+Write-Host "   OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318" -ForegroundColor White
+Write-Host "   OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf" -ForegroundColor White
+Write-Host "   PYROSCOPE_SERVER_ADDRESS=http://pyroscope.monitoramento.local" -ForegroundColor White
 Write-Host ""
