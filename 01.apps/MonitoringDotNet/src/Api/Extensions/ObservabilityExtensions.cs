@@ -42,6 +42,12 @@ internal static class ObservabilityExtensions
                 .SetResourceBuilder(resourceBuilder)
                 .AddAspNetCoreInstrumentation(opts => opts.RecordException = true)
                 .AddHttpClientInstrumentation()
+                // Traces de queries EF Core -> Tempo
+                .AddEntityFrameworkCoreInstrumentation()
+                // Traces ADO.NET diretos do Npgsql (conexão, comandos) via ActivitySource nativo
+                .AddSource("Npgsql")
+                // Traces de comandos Redis -> Tempo; IConnectionMultiplexer resolvido via IServiceProvider
+                .AddRedisInstrumentation(opts => opts.FlushInterval = TimeSpan.FromSeconds(1))
                 .AddSource(serviceName)
                 // Exports spans to Tempo via OTLP/gRPC
                 .AddOtlpExporter(opts => opts.Endpoint = new Uri(otlpEndpoint)))
@@ -50,10 +56,10 @@ internal static class ObservabilityExtensions
                 .AddAspNetCoreInstrumentation()
                 .AddHttpClientInstrumentation()
                 .AddRuntimeInstrumentation()
+                // Métricas nativas do Npgsql: pool de conexões (db.client.connections.*)
+                .AddMeter("Npgsql")
                 // Exposes /metrics for Prometheus scraping
                 .AddPrometheusExporter());
-
-        builder.Services.AddHealthChecks();
 
         return builder;
     }

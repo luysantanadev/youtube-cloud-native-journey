@@ -2,6 +2,7 @@
 using Api;
 using Api.Extensions;
 using DotNetEnv;
+using Scalar.AspNetCore;
 
 // Precedencia de configuracao:
 //   OS env vars (k8s Deployment/ConfigMap) > Vault secrets > .env local (dev fallback)
@@ -24,14 +25,37 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddAuthorization();
 builder.Services.AddOpenApi();
 builder.AddObservability();
+builder.AddDatabase();
+builder.AddRedis();
 
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
+{
     app.MapOpenApi();
+    app.MapScalarApiReference(options =>
+    {
+        options.Title = "monitoring-dotnet-api";
+        options.Theme = ScalarTheme.DeepSpace;
+        options.DefaultHttpClient = new(ScalarTarget.CSharp, ScalarClient.HttpClient);
+        options.WithPreferredScheme("Bearer");
+    });
+
+    // Abre o Scalar automaticamente no browser ao iniciar em Development
+    var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
+    lifetime.ApplicationStarted.Register(() =>
+    {
+        var url = app.Urls.FirstOrDefault() ?? "http://localhost:8080";
+        var scalarUrl = $"{url}/scalar/v1";
+        try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(scalarUrl) { UseShellExecute = true }); }
+        catch { /* browser launch é best-effort */ }
+    });
+}
 
 app.UseObservability();
 app.UseAuthorization();
+
+await app.MigrateDatabaseAsync();
 
 var summaries = new[]
 {
@@ -53,4 +77,3 @@ app.MapGet("/weatherforecast", (HttpContext httpContext) =>
 .WithName("GetWeatherForecast");
 
 app.Run();
-
