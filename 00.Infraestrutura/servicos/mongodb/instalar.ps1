@@ -26,7 +26,23 @@ kubectl create namespace mongodb --dry-run=client -o yaml | kubectl apply -f - |
 Write-Success "Namespace pronto."
 
 # ---------------------------------------------------------------------------
-# 2. Limpeza de release anterior em namespace diferente
+# 2. Remover StatefulSet orfao (criado sem operator, causa backoff infinito)
+#    Se o manifest.yaml foi aplicado antes do operator, o StatefulSet fica
+#    preso em FailedCreate porque a ServiceAccount nao existe ainda.
+# ---------------------------------------------------------------------------
+Write-Step "Verificando StatefulSet orfao (sem operator)..."
+$stsPresent  = kubectl get statefulset -n mongodb mongodb 2>$null
+$helmPresent = helm list -n mongodb -q 2>$null | Where-Object { $_ -eq 'community-operator' }
+if ($stsPresent -and -not $helmPresent) {
+    Write-Warn "StatefulSet mongodb encontrado sem operator instalado — removendo para evitar backoff..."
+    kubectl delete statefulset -n mongodb mongodb 2>$null | Out-Null
+    Write-Success "StatefulSet orfao removido."
+} else {
+    Write-Success "Nenhum StatefulSet orfao encontrado."
+}
+
+# ---------------------------------------------------------------------------
+# 3. Limpeza de release anterior em namespace diferente
 #    O CRD carrega anotacao do namespace antigo; helm nao consegue importar
 # ---------------------------------------------------------------------------
 Write-Step "Verificando instalacao anterior do operator..."

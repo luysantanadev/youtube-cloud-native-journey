@@ -1,0 +1,41 @@
+# Troubleshooting Memory — Index
+
+> Searchable registry of all known issues, root causes, and fixes.
+> Before diagnosing any problem, search here first.
+> After resolving any problem, record it here.
+
+---
+
+## How to Search
+
+| You see...                                       | Look for tag        |
+| ------------------------------------------------ | ------------------- |
+| Pod restarts, `FailedCreatePodSandBox`           | `#cni` `#k3d`       |
+| StatefulSet `0/N ready`, `FailedCreate`          | `#statefulset`      |
+| `serviceaccount "X" not found`                   | `#rbac` `#operator` |
+| Helm install failing with ownership error        | `#helm`             |
+| All pods restarting at the same time             | `#wsl2` `#k3d`      |
+| Liveness/readiness probe failures on startup     | `#probe`            |
+| MongoDB not starting                             | `#mongodb`          |
+
+---
+
+## Open
+
+_(none)_
+
+---
+
+## Resolved
+
+| ID      | Component  | Symptom (short)                                   | Root Cause (short)                            | Resolved    |
+| ------- | ---------- | ------------------------------------------------- | --------------------------------------------- | ----------- |
+| [INC001](INC001-flannel-wsl2-restart.md) | k3d / CNI  | All pods restart in cascade after host reboot     | WSL2/Docker restart clears Flannel subnet.env | 2026-04-20  |
+| [INC002](INC002-mongodb-statefulset-orphan.md) | MongoDB    | StatefulSet `0/1` forever, `FailedCreate` loop    | manifest.yaml applied before operator install | 2026-04-20  |
+
+---
+
+## Recurring Patterns
+
+- **WSL2 reboots** always cause a cascade restart wave (~3–6 restarts/pod). All pods recover automatically. No action needed.
+- **Helm operators** must be installed **before** applying CRs/manifests that depend on them (ServiceAccounts, CRDs, webhooks).

@@ -169,6 +169,7 @@ securityContext:
 - [Monitoring stack](.github/instructions/monitoring-stack.instructions.md)
 - [Kubernetes & Helm conventions](.github/instructions/kubernetes-manifests.instructions.md)
 - [CI/CD & ArgoCD](.github/instructions/cicd-argocd.instructions.md)
+- [Troubleshooting Memory](.github/instructions/troubleshooting-memory.instructions.md)
 
 ## Skills Disponíveis
 
@@ -182,5 +183,6 @@ securityContext:
 | `adr-generator`          | Registros de decisão arquitetural                                                   |
 | `context7-expert`        | Docs atualizadas de libs/frameworks                                                 |
 | `devils-advocate`        | Stress-test de ideias                                                               |
-| `progressive-commits`    | Commits pequenos e atômicos por etapa concluída com sucesso                         |
-| `session-handoff`        | Lê e grava o Memory Bank para continuar o projeto entre sessões sem perder contexto |
+| `progressive-commits`       | Commits pequenos e atômicos por etapa concluída com sucesso                                              |
+| `session-handoff`           | Lê e grava o Memory Bank para continuar o projeto entre sessões sem perder contexto                      |
+| `troubleshooting-memory`    | Consulta e registra incidentes resolvidos; impede rediagnosticar problemas já conhecidos                 |
