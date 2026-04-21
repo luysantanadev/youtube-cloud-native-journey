@@ -3,8 +3,10 @@ using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Serilog;
 using Serilog.Formatting.Compact;
+using Serilog.Sinks.Grafana.Loki;
+using System.Net.Http.Headers;
 
-namespace Api.Extensions;
+namespace Mvc.Extensions;
 
 internal static class ObservabilityExtensions
 {
@@ -17,8 +19,8 @@ internal static class ObservabilityExtensions
         var otlpEndpoint   = config["Observability:Otlp:Endpoint"]  ?? "http://localhost:4317";
 
         // Structured JSON logs to stdout.
-        // Grafana Alloy (or Promtail) running in the cluster collects pod stdout and pushes to Loki.
-        // Alloy pipeline-stage label: { service="monitoring-dotnet-api", namespace="<ns>" }
+        // In cluster: Grafana Alloy (loki.source.kubernetes) collects pod stdout and pushes to Loki.
+        // In Development (local): Alloy cannot reach local stdout, so the Loki sink pushes directly.
         builder.Host.UseSerilog((ctx, services, logConfig) =>
         {
             logConfig
@@ -28,6 +30,17 @@ internal static class ObservabilityExtensions
                 .Enrich.WithMachineName()
                 .Enrich.WithThreadId()
                 .WriteTo.Console(new CompactJsonFormatter());
+
+            // Direct Loki push only in Development — avoids duplicate logs when deployed to cluster.
+            // X-Scope-OrgID must match the tenant written by Alloy and read by the Grafana datasource.
+            var lokiUri = ctx.Configuration["Observability:Loki:Uri"];
+            if (ctx.HostingEnvironment.IsDevelopment() && !string.IsNullOrEmpty(lokiUri))
+            {
+                logConfig.WriteTo.GrafanaLoki(
+                    lokiUri,
+                    labels: [new LokiLabel { Key = "app", Value = serviceName }],
+                    httpClient: new WorkshopLokiHttpClient());
+            }
         });
 
         var resourceBuilder = ResourceBuilder
@@ -81,4 +94,43 @@ internal static class ObservabilityExtensions
 
         return app;
     }
+}
+
+/// <summary>
+/// Loki HTTP client that adds the X-Scope-OrgID tenant header required by the Loki gateway,
+/// even when auth_enabled is false (without the header, pushes go to the "fake" tenant).
+/// </summary>
+file sealed class WorkshopLokiHttpClient : ILokiHttpClient
+{
+    private readonly HttpClient _http = new();
+
+    public WorkshopLokiHttpClient()
+        => _http.DefaultRequestHeaders.Add("X-Scope-OrgID", "workshop");
+
+    public void SetAuthenticationHeader(string type, string credentials)
+        => _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(type, credentials);
+
+    public void SetCredentials(LokiCredentials? credentials)
+    {
+        if (credentials is null) return;
+        var encoded = Convert.ToBase64String(
+            System.Text.Encoding.UTF8.GetBytes($"{credentials.Login}:{credentials.Password}"));
+        _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", encoded);
+    }
+
+    public void SetTenant(string? tenant)
+    {
+        _http.DefaultRequestHeaders.Remove("X-Scope-OrgID");
+        if (tenant is not null)
+            _http.DefaultRequestHeaders.Add("X-Scope-OrgID", tenant);
+    }
+
+    public Task<HttpResponseMessage> PostAsync(string requestUri, Stream contentStream)
+    {
+        var content = new StreamContent(contentStream);
+        content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
+        return _http.PostAsync(requestUri, content);
+    }
+
+    public void Dispose() => _http.Dispose();
 }

@@ -1,8 +1,8 @@
-using Api.Data;
 using Microsoft.EntityFrameworkCore;
+using Mvc.Data;
 using Npgsql;
 
-namespace Api.Extensions;
+namespace Mvc.Extensions;
 
 internal static class DatabaseExtensions
 {

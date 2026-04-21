@@ -1,7 +1,7 @@
-using Api.Data.Entities;
 using Microsoft.EntityFrameworkCore;
+using Mvc.Data.Entities;
 
-namespace Api.Data;
+namespace Mvc.Data;
 
 public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {

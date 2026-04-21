@@ -1,8 +1,6 @@
 
-using Api;
-using Api.Extensions;
 using DotNetEnv;
-using Scalar.AspNetCore;
+using Mvc.Extensions;
 
 // Precedencia de configuracao:
 //   OS env vars (k8s Deployment/ConfigMap) > Vault secrets > .env local (dev fallback)
@@ -22,58 +20,35 @@ Env.TraversePath().Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
+var mvc = builder.Services.AddControllersWithViews();
+
+// Hot reload de Razor Views sem necessidade de recompilar o projeto
+if (builder.Environment.IsDevelopment())
+    mvc.AddRazorRuntimeCompilation();
+
 builder.Services.AddAuthorization();
-builder.Services.AddOpenApi();
 builder.AddObservability();
 builder.AddDatabase();
 builder.AddRedis();
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+if (!app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
-    app.MapScalarApiReference(options =>
-    {
-        options.Title = "monitoring-dotnet-api";
-        options.Theme = ScalarTheme.DeepSpace;
-        options.DefaultHttpClient = new(ScalarTarget.CSharp, ScalarClient.HttpClient);
-        options.WithPreferredScheme("Bearer");
-    });
-
-    // Abre o Scalar automaticamente no browser ao iniciar em Development
-    var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
-    lifetime.ApplicationStarted.Register(() =>
-    {
-        var url = app.Urls.FirstOrDefault() ?? "http://localhost:8080";
-        var scalarUrl = $"{url}/scalar/v1";
-        try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(scalarUrl) { UseShellExecute = true }); }
-        catch { /* browser launch é best-effort */ }
-    });
+    app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
 }
 
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+app.UseRouting();
 app.UseObservability();
 app.UseAuthorization();
 
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
 await app.MigrateDatabaseAsync();
-
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", (HttpContext httpContext) =>
-{
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        {
-            Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            TemperatureC = Random.Shared.Next(-20, 55),
-            Summary = summaries[Random.Shared.Next(summaries.Length)]
-        })
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
 
 app.Run();

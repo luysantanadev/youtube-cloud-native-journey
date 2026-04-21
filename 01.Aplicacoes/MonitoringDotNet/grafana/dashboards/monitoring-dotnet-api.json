@@ -994,7 +994,7 @@
       "targets": [
         {
           "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
-          "expr": "{service=\"$service_name\"} | json | level=~\"$log_level\"",
+          "expr": "{app=\"$service_name\", level=~\"$log_level\"} | json",
           "legendFormat": "",
           "refId": "A"
         }
@@ -1023,7 +1023,7 @@
       "targets": [
         {
           "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
-          "expr": "sum by(level) (count_over_time({service=\"$service_name\"} | json [$__interval]))",
+          "expr": "sum by(level) (count_over_time({app=\"$service_name\"} [$__interval]))",
           "legendFormat": "{{level}}",
           "refId": "A"
         }
@@ -1049,7 +1049,7 @@
       "targets": [
         {
           "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
-          "expr": "{service=\"$service_name\"} | json | level=~\"error|fatal|critical\"",
+          "expr": "{app=\"$service_name\", level=~\"error|fatal|critical\"} | json",
           "legendFormat": "",
           "refId": "A"
         }

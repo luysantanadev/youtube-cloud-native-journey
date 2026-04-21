@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using StackExchange.Redis;
 
-namespace Api.Extensions;
+namespace Mvc.Extensions;
 
 internal static class RedisExtensions
 {
@@ -30,15 +30,15 @@ internal static class RedisExtensions
             KeepAlive           = 60,      // segundos de keepalive
             // Identifica a aplicação no Redis (CLIENT LIST / CLIENT INFO)
             ClientName          = "monitoring-dotnet-api",
-            // Protocolo RESP3 quando disponível (Redis 6+)
-            Protocol            = RedisProtocol.Resp3,
+            // Protocolo negociado automaticamente (RESP2/RESP3 conforme suporte do servidor)
         };
 
         if (!string.IsNullOrWhiteSpace(password))
             options.Password = password;
 
         // IConnectionMultiplexer deve ser singleton — é thread-safe e gerencia o pool interno.
-        var multiplexer = ConnectionMultiplexer.Connect(options);
+        // ConnectAsync evita bloquear a thread do pool durante o handshake de startup.
+        var multiplexer = ConnectionMultiplexer.ConnectAsync(options).GetAwaiter().GetResult();
         builder.Services.AddSingleton<IConnectionMultiplexer>(multiplexer);
 
         // IDatabase é obtido do multiplexer via GetDatabase() — leve e reutilizável por request.

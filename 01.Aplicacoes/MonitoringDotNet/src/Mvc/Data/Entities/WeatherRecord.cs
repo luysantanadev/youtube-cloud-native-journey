@@ -1,4 +1,4 @@
-namespace Api.Data.Entities;
+namespace Mvc.Data.Entities;
 
 /// <summary>
 /// Registro persistido de uma leitura climática.
