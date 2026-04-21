@@ -50,16 +50,11 @@ internal static class ObservabilityExtensions
             .AddTelemetrySdk()
             .AddEnvironmentVariableDetector();
 
-        // Pyroscope: profiling continuo enviado ao servidor via push.
-        // A configuração é feita por variáveis de ambiente antes do profiler iniciar.
-        // Em Development usa o ingress HTTP (pyroscope.monitoramento.local).
-        var pyroscopeAddress = config["Observability:Pyroscope:ServerAddress"];
-        if (!string.IsNullOrEmpty(pyroscopeAddress))
-        {
-            Environment.SetEnvironmentVariable("PYROSCOPE_APPLICATION_NAME",
-                config["Observability:Pyroscope:ApplicationName"] ?? serviceName);
-            Environment.SetEnvironmentVariable("PYROSCOPE_SERVER_ADDRESS", pyroscopeAddress);
-        }
+        // Pyroscope: profiling contínuo via native CLR profiler.
+        // As variáveis CORECLR_*, LD_* e PYROSCOPE_* são lidas pelo runtime antes do
+        // código gerenciado iniciar — devem vir do ConfigMap/Deployment (cluster) ou
+        // das variáveis de ambiente do processo (desenvolvimento local).
+        // PyroscopeSpanProcessor correlaciona cada span OTLP com o profile ID do Pyroscope.
 
         builder.Services
             .AddOpenTelemetry()

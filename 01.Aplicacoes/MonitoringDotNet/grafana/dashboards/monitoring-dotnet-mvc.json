@@ -213,12 +213,12 @@
       "gridPos": { "h": 4, "w": 4, "x": 16, "y": 1 },
       "id": 5,
       "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "center", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
-      "title": "App Up (scrape)",
+      "title": "App Up",
       "type": "stat",
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
-          "expr": "up{job=~\"$job\"}",
+          "expr": "group(http_server_active_requests{job=~\"$job\"}) * 0 + 1",
           "legendFormat": "up",
           "refId": "A"
         }
@@ -372,8 +372,8 @@
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
-          "expr": "dotnet_gc_heap_size_bytes{job=~\"$job\"}",
-          "legendFormat": "{{generation}}",
+          "expr": "sum(dotnet_gc_last_collection_heap_size_bytes{job=~\"$job\"})",
+          "legendFormat": "heap",
           "refId": "A"
         }
       ]
@@ -397,7 +397,7 @@
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
-          "expr": "process_working_set_bytes{job=~\"$job\"}",
+          "expr": "dotnet_process_memory_working_set_bytes{job=~\"$job\"}",
           "legendFormat": "working set",
           "refId": "A"
         }
@@ -447,7 +447,7 @@
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
-          "expr": "dotnet_gc_heap_size_bytes{job=~\"$job\", generation=\"loh\"}",
+          "expr": "dotnet_gc_last_collection_heap_size_bytes{job=~\"$job\", gc_heap_generation=\"loh\"}",
           "legendFormat": "LOH",
           "refId": "A"
         }
@@ -472,7 +472,7 @@
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
-          "expr": "rate(dotnet_gc_pause_ratio{job=~\"$job\"}[$__rate_interval])",
+          "expr": "rate(dotnet_gc_pause_time_seconds_total{job=~\"$job\"}[$__rate_interval])",
           "legendFormat": "pause %",
           "refId": "A"
         }
@@ -497,8 +497,8 @@
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
-          "expr": "dotnet_gc_heap_size_bytes{job=~\"$job\"}",
-          "legendFormat": "{{generation}}",
+          "expr": "dotnet_gc_last_collection_heap_size_bytes{job=~\"$job\"}",
+          "legendFormat": "{{gc_heap_generation}}",
           "refId": "A"
         }
       ]
@@ -523,7 +523,7 @@
         {
           "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
           "expr": "rate(dotnet_gc_collections_total{job=~\"$job\"}[$__rate_interval])",
-          "legendFormat": "Gen{{generation}}",
+          "legendFormat": "Gen{{gc_heap_generation}}",
           "refId": "A"
         }
       ]
@@ -555,7 +555,7 @@
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
-          "expr": "dotnet_thread_pool_thread_count{job=~\"$job\"}",
+          "expr": "dotnet_thread_pool_thread_count_total{job=~\"$job\"}",
           "legendFormat": "threads",
           "refId": "A"
         }
@@ -580,7 +580,7 @@
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
-          "expr": "dotnet_thread_pool_queue_length{job=~\"$job\"}",
+          "expr": "dotnet_thread_pool_queue_length_total{job=~\"$job\"}",
           "legendFormat": "queue",
           "refId": "A"
         }
@@ -605,7 +605,7 @@
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
-          "expr": "rate(process_cpu_seconds_total{job=~\"$job\"}[$__rate_interval])",
+          "expr": "sum(rate(dotnet_process_cpu_time_seconds_total{job=~\"$job\"}[$__rate_interval]))",
           "legendFormat": "cpu",
           "refId": "A"
         }
@@ -680,19 +680,19 @@
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
-          "expr": "dotnet_thread_pool_thread_count{job=~\"$job\"}",
+          "expr": "dotnet_thread_pool_thread_count_total{job=~\"$job\"}",
           "legendFormat": "active threads",
           "refId": "A"
         },
         {
           "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
-          "expr": "dotnet_thread_pool_queue_length{job=~\"$job\"}",
+          "expr": "dotnet_thread_pool_queue_length_total{job=~\"$job\"}",
           "legendFormat": "queue length",
           "refId": "B"
         },
         {
           "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
-          "expr": "rate(dotnet_thread_pool_completed_items_total{job=~\"$job\"}[$__rate_interval])",
+          "expr": "rate(dotnet_thread_pool_work_item_count_total{job=~\"$job\"}[$__rate_interval])",
           "legendFormat": "completed/s",
           "refId": "C"
         }
@@ -717,8 +717,8 @@
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
-          "expr": "rate(process_cpu_seconds_total{job=~\"$job\"}[$__rate_interval])",
-          "legendFormat": "cpu usage",
+          "expr": "sum by(cpu_mode) (rate(dotnet_process_cpu_time_seconds_total{job=~\"$job\"}[$__rate_interval]))",
+          "legendFormat": "{{cpu_mode}}",
           "refId": "A"
         }
       ]
@@ -873,44 +873,19 @@
         "defaults": {
           "color": { "mode": "thresholds" },
           "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }] },
-          "unit": "dateTimeFromNow"
+          "unit": "short"
         },
         "overrides": []
       },
       "gridPos": { "h": 4, "w": 4, "x": 0, "y": 68 },
       "id": 60,
       "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "center", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
-      "title": "Process Start Time",
+      "title": "CPU Count",
       "type": "stat",
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
-          "expr": "process_start_time_seconds{job=~\"$job\"} * 1000",
-          "legendFormat": "",
-          "refId": "A"
-        }
-      ]
-    },
-
-    {
-      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }] },
-          "unit": "s"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 68 },
-      "id": 61,
-      "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "center", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
-      "title": "Uptime",
-      "type": "stat",
-      "targets": [
-        {
-          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
-          "expr": "time() - process_start_time_seconds{job=~\"$job\"}",
+          "expr": "dotnet_process_cpu_count{job=~\"$job\"}",
           "legendFormat": "",
           "refId": "A"
         }
@@ -927,15 +902,40 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 68 },
-      "id": 62,
+      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 68 },
+      "id": 61,
       "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "center", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
-      "title": "Open File Descriptors",
+      "title": "Assembly Count",
       "type": "stat",
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
-          "expr": "process_open_fds{job=~\"$job\"}",
+          "expr": "dotnet_assembly_count{job=~\"$job\"}",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ]
+    },
+
+    {
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }] },
+          "unit": "Bps"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 68 },
+      "id": 62,
+      "options": { "colorMode": "background", "graphMode": "area", "justifyMode": "center", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
+      "title": "GC Alloc Rate",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "expr": "sum(rate(dotnet_gc_heap_total_allocated_bytes_total{job=~\"$job\"}[$__rate_interval]))",
           "legendFormat": "",
           "refId": "A"
         }
@@ -955,12 +955,12 @@
       "gridPos": { "h": 4, "w": 4, "x": 12, "y": 68 },
       "id": 63,
       "options": { "colorMode": "background", "graphMode": "area", "justifyMode": "center", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
-      "title": "Virtual Memory",
+      "title": "Total Heap",
       "type": "stat",
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
-          "expr": "process_virtual_memory_bytes{job=~\"$job\"}",
+          "expr": "sum(dotnet_gc_last_collection_heap_size_bytes{job=~\"$job\"})",
           "legendFormat": "",
           "refId": "A"
         }
@@ -994,7 +994,7 @@
       "targets": [
         {
           "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
-          "expr": "{app=\"$service_name\", detected_level=~\"$log_level\"} | json",
+          "expr": "{namespace=\"dotnet\"} | json",
           "legendFormat": "",
           "refId": "A"
         }
@@ -1023,8 +1023,8 @@
       "targets": [
         {
           "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
-          "expr": "sum by(detected_level) (count_over_time({app=\"$service_name\"} [$__interval]))",
-          "legendFormat": "{{level}}",
+          "expr": "sum by(detected_level) (count_over_time({namespace=\"dotnet\"} [$__interval]))",
+          "legendFormat": "{{detected_level}}",
           "refId": "A"
         }
       ]
@@ -1049,7 +1049,7 @@
       "targets": [
         {
           "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
-          "expr": "{app=\"$service_name\", detected_level=~\"error|fatal\"} | json",
+          "expr": "{namespace=\"dotnet\"} | json | level =~ \"(?i)(error|fatal)\"",
           "legendFormat": "",
           "refId": "A"
         }
@@ -1154,14 +1154,14 @@
       {
         "current": {},
         "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
-        "definition": "label_values(up, job)",
+        "definition": "label_values(http_server_request_duration_seconds_count, job)",
         "hide": 0,
         "includeAll": false,
         "label": "Job",
         "multi": false,
         "name": "job",
         "options": [],
-        "query": { "query": "label_values(up, job)", "refId": "StandardVariableQuery" },
+        "query": { "query": "label_values(http_server_request_duration_seconds_count, job)", "refId": "StandardVariableQuery" },
         "refresh": 2,
         "regex": ".*monitoring-dotnet.*",
         "sort": 1,
@@ -1201,5 +1201,5 @@
   "timezone": "browser",
   "title": "monitoring-dotnet-mvc",
   "uid": "monitoring-dotnet-mvc-v1",
-  "version": 3
+  "version": 4
 }
