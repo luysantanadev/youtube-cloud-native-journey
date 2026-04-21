@@ -1065,30 +1065,44 @@
     },
 
     {
-      "datasource": { "type": "tempo", "uid": "${DS_TEMPO}" },
-      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 100 },
       "id": 80,
-      "options": {
-        "query": {
-          "filters": [
-            { "id": "service-name", "operator": "=", "scope": "resource", "tag": "service.name", "value": ["$service_name"], "valueType": "string" }
-          ]
-        },
-        "search": { "hide": false },
-        "serviceMap": { "datasource": "${DS_PROMETHEUS}" },
-        "nodeGraph": { "enabled": true }
-      },
+      "type": "table",
       "title": "Trace Explorer",
-      "type": "traces",
+      "gridPos": { "x": 0, "y": 100, "h": 12, "w": 24 },
+      "datasource": { "type": "tempo", "uid": "${DS_TEMPO}" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": { "type": "auto" },
+            "footer": { "reducers": [] },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": null, "color": "green" },
+              { "value": 80, "color": "red" }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      },
+      "pluginVersion": "12.4.3",
       "targets": [
         {
           "datasource": { "type": "tempo", "uid": "${DS_TEMPO}" },
-          "filters": [
-            { "id": "service-name", "operator": "=", "scope": "resource", "tag": "service.name", "value": "$service_name", "valueType": "string" }
-          ],
           "limit": 20,
+          "metricsQueryType": "range",
+          "query": "{resource.service.name=\"$service_name\"}",
           "queryType": "traceql",
           "refId": "A",
+          "serviceMapUseNativeHistograms": false,
           "tableType": "traces"
         }
       ]
@@ -1112,7 +1126,7 @@
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
-          "expr": "sum(rate(traces_spanmetrics_calls_total{job=~\"$job\"}[$__rate_interval]))",
+          "expr": "sum(rate(traces_spanmetrics_calls_total{service=~\"$service_name\"}[$__rate_interval]))",
           "legendFormat": "spans/s",
           "refId": "A"
         }
@@ -1137,7 +1151,7 @@
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
-          "expr": "histogram_quantile(0.99, sum by(span_name, le) (rate(traces_spanmetrics_duration_milliseconds_bucket{job=~\"$job\"}[$__rate_interval]))) / 1000",
+          "expr": "histogram_quantile(0.99, sum by(span_name, le) (rate(traces_spanmetrics_latency_bucket{service=~\"$service_name\"}[$__rate_interval])))",
           "legendFormat": "p99 {{span_name}}",
           "refId": "A"
         }
@@ -1201,5 +1215,5 @@
   "timezone": "browser",
   "title": "monitoring-dotnet-mvc",
   "uid": "monitoring-dotnet-mvc-v1",
-  "version": 4
+  "version": 9
 }

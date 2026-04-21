@@ -26,6 +26,16 @@
 				"ghcr.io/microsoft/mcp-dotnet-samples/awesome-copilot:latest"
 			],
 			"type": "stdio"
+		},
+		"grafana": {
+			"command": "uvx",
+			"args": [
+				"mcp-grafana"
+			],
+			"env": {
+				"GRAFANA_URL": "http://grafana.monitoramento.local",
+				"GRAFANA_SERVICE_ACCOUNT_TOKEN": ""
+			}
 		}
 	},
 	"inputs": []

@@ -30,12 +30,16 @@ tempo:
   metricsGenerator:
     enabled: true
     remoteWriteUrl: "http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090/api/v1/write"
+    processor:
+      span_metrics: {}
+      service_graphs:
+        max_items: 10000
 
-  traces:
-    spanMetrics:
-      enabled: true
-    serviceGraphs:
-      enabled: true
+  # Habilita os processors para o tenant padrao (sem multitenancy).
+  overrides:
+    defaults:
+      metrics_generator:
+        processors: [service-graphs, span-metrics]
 
   resources:
     requests:
