@@ -47,6 +47,7 @@ Write-Step "Instalando cluster PostgreSQL 'pgsql'..."
 helm upgrade --install pgsql cnpg/cluster `
     --namespace pgsql `
     --values "$scriptDir/values.yaml"
+
 if ($LASTEXITCODE -ne 0) { Write-Fail "Helm install falhou." }
 Write-Success "Cluster PostgreSQL criado."
 
