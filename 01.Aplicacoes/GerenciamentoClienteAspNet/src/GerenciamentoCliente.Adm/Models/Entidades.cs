@@ -7,6 +7,8 @@ namespace GerenciamentoCliente.Adm.Models;
 
 public class Cliente : Notifiable<Notification>
 {
+    private List<Endereco> _enderecos { get; set; } = new List<Endereco>();
+    
     // // Construtor EF Core
     protected Cliente(int id, string nomeCompleto, string cpf, DateOnly nascimento, string email, string telefone)
     {
@@ -33,6 +35,8 @@ public class Cliente : Notifiable<Notification>
     public DateOnly Nascimento { get; private set; }
     public string Email { get; private set; }
     public string Telefone { get; private set; }
+    
+    public IReadOnlyList<Endereco> Enderecos => _enderecos.AsReadOnly();
 
     public void AtualizarNome(string? nomeCompleto)
     {
@@ -78,6 +82,7 @@ public class Cliente : Notifiable<Notification>
         AddNotifications(new Contract()
             .Requires()
             .IsNotNullOrWhiteSpace(email, "Email", "O email é obrigatório")
+            .IsLowerOrEqualsThan(email, 75, "Email", "O email deve conter no máximo 75 caracteres")
             .IsEmail(email, "Email", "O email é inválido"));
         Email = email?.Trim().ToLower() ?? "";
     }
@@ -87,7 +92,7 @@ public class Cliente : Notifiable<Notification>
         AddNotifications(new Contract()
             .Requires()
             .IsNotNullOrWhiteSpace(telefone, "Telefone", "O telefone é obrigatório")
-            .IsGreaterThan(telefone, 10, "Telefone", "O telefone deve conter mais de 10 caracteres")
+            .IsGreaterOrEqualsThan(telefone, 10, "Telefone", "O telefone deve conter ao menos 10 caracteres")
             .IsLowerOrEqualsThan(telefone, 11, "Telefone", "O telefone deve conter no máximo 11 caracteres"));
         Telefone = Regex.Replace(telefone ?? "", @"[^\D]", "");
     }
@@ -123,13 +128,16 @@ public class Endereco : Notifiable<Notification>
     }
 
     public int Id { get; private set; }
+    public int ClienteId { get; private set; }
+    public int CidadeId { get; private set; }
     public string Logradouro { get; private set; }
     public string Numero { get; private set; }
     public string Complemento { get; private set; }
     public string Referencia { get; private set; }
     public string Bairro { get; private set; }
     public string Cep { get; private set; }
-    public int CidadeId { get; private set; }
+
+    public Cliente Cliente { get; private set; }
     public Cidade Cidade { get; private set; }
 
     public void AtualizarLogradouro(string? logradouro)
