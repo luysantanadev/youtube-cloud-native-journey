@@ -29,6 +29,10 @@ O objetivo é mostrar na prática como times de engenharia constroem ambientes d
 | Redis | [Bitnami Redis](https://github.com/bitnami/charts/tree/main/bitnami/redis) |
 | MongoDB | [MongoDB Community Operator](https://github.com/mongodb/mongodb-kubernetes-operator) |
 | RavenDB | [RavenDB Helm Chart](https://ravendb.net) |
+| RabbitMQ | [RabbitMQ Cluster Operator](https://www.rabbitmq.com/kubernetes/operator/operator-overview) |
+| Secrets Manager | [HashiCorp Vault](https://developer.hashicorp.com/vault) |
+| GitOps | [ArgoCD](https://argo-cd.readthedocs.io) |
+| Code Quality | [SonarQube](https://www.sonarsource.com/products/sonarqube/) |
 | App demo | [Nuxt 3](https://nuxt.com) + [Prisma](https://prisma.io) + OpenTelemetry |
 
 ---
@@ -114,6 +118,17 @@ Após executar o script `04`, o seguinte stack estará disponível:
 | RavenDB | `<nome>-ravendb.k3d.localhost` | Ingress HTTP |
 
 > Todos os bancos incluem `ServiceMonitor` para scrape automático pelo Prometheus.
+
+### Serviços Adicionais
+
+| Serviço | Acesso | Credenciais |
+|---------|--------|-------------|
+| RabbitMQ | <http://rabbitmq.monitoramento.local> | `user` / `Workshop123rabbit` |
+| HashiCorp Vault | <http://vault.monitoramento.local> | Root token: `kubectl get secret vault-unseal-keys -n vault -o jsonpath='{.data.root-token}' \| base64 -d` |
+| ArgoCD | <http://argocd.monitoramento.local> | `admin` / `kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' \| base64 -d` |
+| SonarQube | <http://sonarqube.monitoramento.local> | `admin` / `admin` |
+
+Instale cada serviço individualmente via scripts em `00.Infraestrutura/servicos/<nome>/`:
 
 ---
 

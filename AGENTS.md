@@ -88,6 +88,18 @@ Helmvalues de cada componente em [`00.Infraestrutura/yamls/`](00.Infraestrutura/
 
 Cada banco é instalado com `ServiceMonitor` (`release: kube-prometheus-stack`) para scrape automático pelo Prometheus.
 
+## Serviços Adicionais
+
+| Serviço                  | Namespace   | Acesso                                    | Credenciais                                              | Script                                              |
+| ------------------------ | ----------- | ----------------------------------------- | -------------------------------------------------------- | --------------------------------------------------- |
+| RabbitMQ (Operator)      | `rabbitmq`  | `rabbitmq.monitoramento.local`            | `user` / `Workshop123rabbit`                             | `servicos/rabbitmq/instalar.ps1` (ou `.sh`)         |
+| HashiCorp Vault          | `vault`     | `vault.monitoramento.local`               | Root token em Secret `vault-unseal-keys` (namespace `vault`) | `servicos/10.vault/instalar.ps1` (ou `.sh`)     |
+| ArgoCD                   | `argocd`    | `argocd.monitoramento.local`              | `admin` / `kubectl -n argocd get secret argocd-initial-admin-secret` | `servicos/02.argocd/instalar.ps1` (ou `.sh`) |
+| SonarQube                | `default`   | `sonarqube.monitoramento.local`           | `admin` / `admin` (alterar no primeiro login)            | `servicos/sonarqube/instalar.ps1` (ou `.sh`)        |
+| Keycloak                 | `default`   | —                                         | —                                                        | `servicos/03.keycloak/instalar.ps1` (ou `.sh`)      |
+
+Cada serviço é instalado individualmente via seu script dedicado em `00.Infraestrutura/servicos/<nome>/`.
+
 ---
 
 ## Helm Chart (nuxt-workshop)
