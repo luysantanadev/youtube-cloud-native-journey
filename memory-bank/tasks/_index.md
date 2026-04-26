@@ -12,6 +12,7 @@
 - [TASK007] Fix Pyroscope .NET native CLR profiler — `ENV` no Dockerfile + ConfigMap no Helm; `SetEnvironmentVariable()` runtime removido; 5 arquivos alterados (2026-04-25)
 - [TASK008] Add ArgoCD service — `instalar.ps1`, `instalar.sh`, `values.yaml` criados em `00.Infraestrutura/servicos/argocd/`; namespace `argocd`, modo insecure, hostname `argocd.monitoramento.local` (2026-04-25)
 - [TASK009] Fix RabbitMQ install scripts — `instalar.ps1` corrigido (cleanup + rollout wait + ingressClassName); `instalar.sh` reescrito com Operator approach; ambos com PVC finalizer cleanup automático; validado HTTP 200 OK (2026-04-25)
+- [TASK010] Vault standalone mode — migrado de `dev` para `standalone+PVC`; scripts corrigidos (webhook delete + Secret-based init/unseal); vault-0 1/1 Running, PVC Bound, Initialized=true, Sealed=false (2026-04-25)
 
 ## Pending
 

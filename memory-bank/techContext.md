@@ -32,7 +32,7 @@
 | RavenDB           | Helm chart             | `default` | Ingress HTTP            |
 | RabbitMQ          | Cluster Operator oficial   | `rabbitmq` | 5672 (IngressRouteTCP), 15672 (Ingress HTTP) |
 | Keycloak          | Bitnami Helm chart     | `default` | —                       |
-| Vault             | HashiCorp Helm chart   | `default` | —                       |
+| Vault             | HashiCorp Helm chart   | `vault`   | Ingress HTTP (`vault.monitoramento.local`) |
 | SonarQube         | Bitnami Helm chart     | `default` | —                       |
 
 ## Demo Applications
@@ -62,6 +62,8 @@
 | Alloy         | `alloy.monitoramento.local`     |
 | RabbitMQ      | `rabbitmq.monitoramento.local`  |
 | ArgoCD        | `argocd.monitoramento.local`    |
+| Vault         | `vault.monitoramento.local`     |
+| SonarQube     | `sonarqube.monitoramento.local` |
 | RavenDB       | `<name>-ravendb.k3d.localhost`  |
 | nuxt-workshop | `nuxt-workshop.local`           |
 
@@ -72,6 +74,7 @@
 | Grafana   | `admin`    | `workshop123`                                       |
 | RabbitMQ  | `user`     | `Workshop123rabbit`                                 |
 | ArgoCD    | `admin`    | `kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' \| base64 -d` |
+| Vault     | root token | `kubectl get secret vault-unseal-keys -n vault -o jsonpath='{.data.root-token}' \| base64 -d` |
 
 ## Development Tools
 

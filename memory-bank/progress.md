@@ -38,7 +38,7 @@
 | ravendb   | ✅  | ✅  | ✅ values.yaml    |
 | redis     | ✅  | ✅  | ✅ values.yaml    |
 | sonarqube | ✅  | ✅  | ✅ values.yaml    |
-| vault     | ✅  | ✅  | ✅ values.yaml    |
+| vault     | ✅  | ✅  | ✅ values.yaml    | ✅ Validado (standalone+PVC+unseal) |
 
 ### Demo Applications
 
@@ -78,6 +78,16 @@
 | Dashboard v9 gerado | ✅ Gerado (2026-04-25) | `monitoring-dotnet-mvc.json` v9 salvo em `grafana/dashboards/` |
 | Dashboard re-importado no Grafana | ⏳ Pendente | Usuário precisa importar `monitoring-dotnet-mvc.json` (v9) |
 | Validação E2E com novo service name | ⏳ Pendente | Reiniciar app, confirmar `app="monitoring-dotnet-mvc"` no Loki |
+
+### Vault — Secrets Manager
+
+| Item | Status | Notes |
+|------|--------|-------|
+| Modo standalone com `storage "file"` + PVC 1Gi | ✅ Configurado (2026-04-25) | `10.vault/values.yaml` — migrado de `dev` in-memory |
+| Auto-init + auto-unseal via K8s Secret | ✅ Implementado (2026-04-25) | Secret `vault-unseal-keys` em namespace `vault`; unseal key + root token armazenados |
+| Delete MutatingWebhookConfiguration antes do upgrade | ✅ Corrigido (2026-04-25) | `vault-agent-injector-cfg` recreado pelo injector pod — conflito de field manager `vault-k8s` |
+| ServiceMonitor para Prometheus | ✅ Configurado | `unauthenticated_metrics_access = true` em telemetry |
+| Vault 1/1 Running, Initialized=true, Sealed=false | ✅ Validado (2026-04-25) | PVC Bound, root token em `vault-unseal-keys` |
 | Pyroscope native CLR profiler configurado | ✅ Corrigido (2026-04-25) | `Dockerfile` com `CORECLR_*` + `LD_PRELOAD` + `DOTNET_EnableDiagnostics_*`; `PYROSCOPE_*` em `helm/values.yaml` configMap |
 | `SetEnvironmentVariable` em runtime removido | ✅ Corrigido (2026-04-25) | `ObservabilityExtensions.cs` — CLR profiler lê vars antes do código gerenciado; config DEVE vir do processo |
 | `appsettings.Development.json` e `.env.example` atualizados | ✅ Corrigido (2026-04-25) | Vars `Observability__Pyroscope__*` removidas; usar `PYROSCOPE_*` nativas |
