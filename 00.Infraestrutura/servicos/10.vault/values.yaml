@@ -1,0 +1,46 @@
+server:
+  standalone:
+    enabled: true
+    config: |
+      ui = true
+      listener "tcp" {
+        tls_disable     = 1
+        address         = "[::]:8200"
+        cluster_address = "[::]:8201"
+      }
+
+      storage "file" {
+        path = "/vault/data"
+      }
+
+      telemetry {
+        prometheus_retention_time      = "30s"
+        disable_hostname               = true
+        unauthenticated_metrics_access = true
+      }
+
+  dataStorage:
+    enabled: true
+    size: 1Gi
+
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "256Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+
+injector:
+  enabled: true
+  resources:
+    requests:
+      cpu: "50m"
+      memory: "64Mi"
+    limits:
+      cpu: "100m"
+      memory: "128Mi"
+
+ui:
+  enabled: true
+  serviceType: ClusterIP
