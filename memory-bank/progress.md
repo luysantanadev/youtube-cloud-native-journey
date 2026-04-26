@@ -34,7 +34,7 @@
 | keycloak  | ✅  | ✅  | ✅ manifest.yaml  |
 | mongodb   | ✅  | ✅  | ✅ manifest.yaml  |
 | pgsql     | ✅  | ✅  | ✅ values.yaml    |
-| rabbitmq  | ✅  | ✅  | ✅ values.yaml    |
+| rabbitmq  | ✅  | ✅  | ✅ manifest.yaml (Operator) |
 | ravendb   | ✅  | ✅  | ✅ values.yaml    |
 | redis     | ✅  | ✅  | ✅ values.yaml    |
 | sonarqube | ✅  | ✅  | ✅ values.yaml    |
@@ -100,7 +100,8 @@
 - [ ] **Re-importar dashboard `monitoring-dotnet-mvc.json` no Grafana** (uid: `monitoring-dotnet-mvc-v1`)
 - [ ] **Validar E2E MonitoringDotNet**: reiniciar app, confirmar logs com `app="monitoring-dotnet-mvc"` no Loki
 - [ ] Validate MonitoringDotNet produces OTLP traces visible in Tempo
-- [ ] Verify RabbitMQ and Keycloak `instalar.sh` work and ServiceMonitors are active
+- [x] ~~Verify RabbitMQ `instalar.sh` work and ServiceMonitor is active~~ ✅ Validado 2026-04-25
+- [ ] Verify Keycloak `instalar.sh` work and ServiceMonitor is active
 
 ### Documentation
 
@@ -118,6 +119,10 @@
 | Dashboard `monitoring-dotnet-mvc` não importado  | Medium   | Importar v9: `grafana.monitoramento.local` → Dashboards → Import → upload JSON |
 | Logs históricos em Loki com `app=monitoring-dotnet-api` | Low | Apenas visíveis via Explore; dashboard novo aponta para `-mvc`        |
 | ~~Grafana Drilldown > Traces — `empty ring`~~    | ~~Critical~~ | ✅ **Resolvido 2026-04-21** — `metricsGenerator` habilitado no Tempo  |
+| ~~RabbitMQ UI inacessível (not found)~~ | ~~High~~ | ✅ **Resolvido 2026-04-25** — `ingressClassName: traefik` ausente; rollout wait prematuro; `instalar.sh` usava Bitnami em vez do Operator |
+| Namespace travado em `Terminating` após delete com PVC | Low | Workaround automático nos scripts: patch finalizer `kubernetes.io/pvc-protection` antes de deletar namespace |
+| ~~RabbitMQ UI não acessível (not found)~~ | ~~High~~ | ✅ **Resolvido 2026-04-25** — Ingress faltava `ingressClassName: traefik`; rollout wait era prematuro; `instalar.sh` usava Bitnami em vez de Operator |
+| Namespace `Terminating` stuck com PVC finalizer | Low | Workaround: `kubectl patch pvc <name> -n <ns> -p '{"metadata":{"finalizers":[]}}' --type=merge`; ambos scripts já incluem esta lógica automaticamente |
 
 ---
 

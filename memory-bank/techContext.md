@@ -30,7 +30,7 @@
 | Redis             | Bitnami Helm chart     | `default` | 6379 (IngressRouteTCP)  |
 | MongoDB Community | Percona Helm chart     | `default` | 27017 (IngressRouteTCP) |
 | RavenDB           | Helm chart             | `default` | Ingress HTTP            |
-| RabbitMQ          | Bitnami Helm chart     | `default` | —                       |
+| RabbitMQ          | Cluster Operator oficial   | `rabbitmq` | 5672 (IngressRouteTCP), 15672 (Ingress HTTP) |
 | Keycloak          | Bitnami Helm chart     | `default` | —                       |
 | Vault             | HashiCorp Helm chart   | `default` | —                       |
 | SonarQube         | Bitnami Helm chart     | `default` | —                       |
@@ -60,6 +60,7 @@
 | Tempo         | `tempo.monitoramento.local`     |
 | Pyroscope     | `pyroscope.monitoramento.local` |
 | Alloy         | `alloy.monitoramento.local`     |
+| RabbitMQ      | `rabbitmq.monitoramento.local`  |
 | ArgoCD        | `argocd.monitoramento.local`    |
 | RavenDB       | `<name>-ravendb.k3d.localhost`  |
 | nuxt-workshop | `nuxt-workshop.local`           |
@@ -68,8 +69,9 @@
 
 | Service | Username | Password                                            |
 | ------- | -------- | --------------------------------------------------- |
-| Grafana | `admin`  | `workshop123`                                       |
-| ArgoCD  | `admin`  | `kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' \| base64 -d` |
+| Grafana   | `admin`    | `workshop123`                                       |
+| RabbitMQ  | `user`     | `Workshop123rabbit`                                 |
+| ArgoCD    | `admin`    | `kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' \| base64 -d` |
 
 ## Development Tools
 

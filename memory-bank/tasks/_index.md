@@ -11,6 +11,7 @@
 - [TASK006] Fix observabilidade MonitoringDotNet — `.env` criado, queries Loki corrigidas (`detected_level`), `$log_level` corrigida, todos identificadores renomeados para `monitoring-dotnet-mvc`
 - [TASK007] Fix Pyroscope .NET native CLR profiler — `ENV` no Dockerfile + ConfigMap no Helm; `SetEnvironmentVariable()` runtime removido; 5 arquivos alterados (2026-04-25)
 - [TASK008] Add ArgoCD service — `instalar.ps1`, `instalar.sh`, `values.yaml` criados em `00.Infraestrutura/servicos/argocd/`; namespace `argocd`, modo insecure, hostname `argocd.monitoramento.local` (2026-04-25)
+- [TASK009] Fix RabbitMQ install scripts — `instalar.ps1` corrigido (cleanup + rollout wait + ingressClassName); `instalar.sh` reescrito com Operator approach; ambos com PVC finalizer cleanup automático; validado HTTP 200 OK (2026-04-25)
 
 ## Pending
 

@@ -20,6 +20,48 @@ function Write-Warn($msg)    { Write-Host "    AVISO: $msg" -ForegroundColor Yel
 function Write-Fail($msg)    { Write-Host "`n    ERRO: $msg" -ForegroundColor Red; exit 1 }
 
 # ---------------------------------------------------------------------------
+# 0. Cleanup — remove instalação anterior (idempotência)
+# ---------------------------------------------------------------------------
+Write-Step "Verificando instalação anterior..."
+$nsCheck = kubectl get namespace rabbitmq 2>&1
+if ($LASTEXITCODE -eq 0) {
+    Write-Step "Removendo namespace 'rabbitmq' existente..."
+
+    # 0a. Remove finalizers de PVCs (evita Terminating stuck por pvc-protection)
+    $pvcs = kubectl get pvc -n rabbitmq --no-headers -o custom-columns=NAME:.metadata.name 2>&1
+    if ($LASTEXITCODE -eq 0 -and "$pvcs" -notmatch "No resources") {
+        $pvcs | Where-Object { $_ -match '\S' } | ForEach-Object {
+            $pvcName = $_.Trim()
+            Write-Host "    Removendo finalizer de PVC: $pvcName" -ForegroundColor DarkGray
+            kubectl patch pvc $pvcName -n rabbitmq -p '{"metadata":{"finalizers":[]}}' --type=merge 2>&1 | Out-Null
+        }
+    }
+
+    # 0b. Força remoção dos pods para liberar PVCs imediatamente
+    kubectl delete pods --all -n rabbitmq --force --grace-period=0 2>&1 | Out-Null
+
+    # 0c. Dispara delete do namespace sem bloquear
+    kubectl delete namespace rabbitmq --wait=false 2>&1 | Out-Null
+
+    # 0d. Poll loop — aguarda namespace desaparecer completamente (até 120s)
+    Write-Host "    Aguardando namespace ser removido..." -ForegroundColor DarkGray
+    $deadline = [datetime]::Now.AddSeconds(120)
+    $removed = $false
+    do {
+        Start-Sleep -Seconds 3
+        kubectl get namespace rabbitmq 2>&1 | Out-Null
+        if ($LASTEXITCODE -ne 0) { $removed = $true; break }
+    } while ([datetime]::Now -lt $deadline)
+
+    if (-not $removed) {
+        Write-Fail "Timeout: namespace 'rabbitmq' ainda em Terminating após 120s. Verifique finalizers pendentes."
+    }
+    Write-Success "Namespace anterior removido."
+} else {
+    Write-Success "Nenhuma instalação anterior encontrada."
+}
+
+# ---------------------------------------------------------------------------
 # 1. RabbitMQ Cluster Operator
 # ---------------------------------------------------------------------------
 Write-Step "Instalando RabbitMQ Cluster Operator..."
@@ -45,7 +87,16 @@ Write-Step "Aplicando RabbitmqCluster (manifest.yaml)..."
 kubectl apply -f "$scriptDir/manifest.yaml"
 if ($LASTEXITCODE -ne 0) { Write-Fail "Falha ao aplicar manifest.yaml." }
 
-Write-Step "Aguardando StatefulSet rabbitmq-server ficar pronto..."
+Write-Step "Aguardando operator criar StatefulSet (processamento assincrono)..."
+$deadline = [datetime]::Now.AddSeconds(120)
+do {
+    $null = kubectl get statefulset rabbitmq-server -n rabbitmq 2>&1
+    if ($LASTEXITCODE -eq 0) { break }
+    Start-Sleep -Seconds 5
+} while ([datetime]::Now -lt $deadline)
+if ($LASTEXITCODE -ne 0) { Write-Fail "Timeout: operator nao criou StatefulSet em 120s." }
+
+Write-Step "Aguardando pods ficarem prontos..."
 kubectl rollout status statefulset/rabbitmq-server -n rabbitmq --timeout=180s
 if ($LASTEXITCODE -ne 0) { Write-Fail "RabbitmqCluster nao ficou pronto a tempo." }
 Write-Success "RabbitmqCluster pronto."
@@ -63,6 +114,7 @@ metadata:
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: web
 spec:
+  ingressClassName: traefik
   rules:
     - host: rabbitmq.monitoramento.local
       http:
@@ -73,7 +125,7 @@ spec:
               service:
                 name: rabbitmq
                 port:
-                  number: 15672
+                  name: management
 "@ | kubectl apply -f -
 if ($LASTEXITCODE -ne 0) { Write-Warn "Ingress management nao aplicado." }
 else { Write-Success "UI acessivel em http://rabbitmq.monitoramento.local" }
