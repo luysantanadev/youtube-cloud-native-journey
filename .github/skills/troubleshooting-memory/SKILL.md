@@ -6,7 +6,7 @@ license: MIT
 
 # Troubleshooting Memory — Record & Retrieve Incident Solutions
 
-This skill manages the `memory-bank/troubleshooting/` knowledge base: look up known solutions before diagnosing, and record new solutions after fixing.
+This skill manages the `.github/memory-bank/troubleshooting/` knowledge base: look up known solutions before diagnosing, and record new solutions after fixing.
 
 ---
 
@@ -34,7 +34,7 @@ Use the todo list to show progress to the user.
 ### Step 1 — Read the index
 
 ```
-read_file: memory-bank/troubleshooting/_index.md
+read_file: .github/memory-bank/troubleshooting/_index.md
 ```
 
 ### Step 2 — Match symptom to existing record
@@ -51,7 +51,7 @@ If no match is found → proceed with normal investigation, then use **Workflow 
 ### Step 3 — Apply or investigate
 
 **Known issue found:**
-> "This matches [INC<NNN>](memory-bank/troubleshooting/INC<NNN>-*.md). Applying the documented fix."
+> "This matches [INC<NNN>](.github/memory-bank/troubleshooting/INC<NNN>-*.md). Applying the documented fix."
 
 Apply the resolution steps from the INC file. After applying, verify the fix still works and note any differences.
 
@@ -91,11 +91,11 @@ Use the todo list to show progress to the user.
 
 ### Step 1 — Determine next INC number
 
-Read `memory-bank/troubleshooting/_index.md` and find the highest existing INC number. Increment by 1, zero-padded to 3 digits.
+Read `.github/memory-bank/troubleshooting/_index.md` and find the highest existing INC number. Increment by 1, zero-padded to 3 digits.
 
 ### Step 2 — Create the INC file
 
-File name: `memory-bank/troubleshooting/INC<NNN>-<kebab-slug>.md`
+File name: `.github/memory-bank/troubleshooting/INC<NNN>-<kebab-slug>.md`
 
 Slug rules: lowercase, hyphens, component first, then issue type.
 Examples: `mongodb-statefulset-orphan`, `flannel-wsl2-restart`, `prometheus-pvc-pending`
@@ -164,7 +164,7 @@ If the issue is a new **Recurring Pattern**, add it to the "Recurring Patterns" 
 
 When the user asks "do we have a known fix for X" or "have we seen this before":
 
-1. Read `memory-bank/troubleshooting/_index.md`
+1. Read `.github/memory-bank/troubleshooting/_index.md`
 2. Search the tags and symptom column for the keyword
 3. If found: read that INC file and summarise the fix
 4. If not found: report "No known record for X"

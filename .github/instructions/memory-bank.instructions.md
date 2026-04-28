@@ -69,7 +69,7 @@ flowchart TD
    - Preserves complete thought process and history for each task
 
 ### Additional Context
-Create additional files/folders within memory-bank/ when they help organize:
+Create additional files/folders within `.github/memory-bank/` when they help organize:
 - Complex feature documentation
 - Integration specifications
 - API documentation
@@ -142,7 +142,7 @@ flowchart TD
     Start --> Process
 ```
 
-Note: When triggered by **update memory bank**, I MUST review every memory bank file, even if some don't require updates. Focus particularly on activeContext.md, progress.md, and the tasks/ folder (including _index.md) as they track current state.
+Note: When triggered by **update memory bank**, I MUST review every memory bank file under `.github/memory-bank/`, even if some don't require updates. Focus particularly on activeContext.md, progress.md, and the tasks/ folder (including _index.md) as they track current state.
 
 ## Project Intelligence (instructions)
 

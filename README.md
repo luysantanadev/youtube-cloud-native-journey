@@ -1,72 +1,76 @@
-# k8s-monitoring
+# Jornada Cloud-Native
 
 > Repositório de apoio ao canal **[@luysantanadev](https://www.youtube.com/@luysantanadev)** no YouTube.
-> Cada pasta do projeto corresponde a um módulo de vídeos sobre Kubernetes, observabilidade e DevOps na prática.
+> A proposta é construir, evoluir e operar aplicações cloud-native modernas em Kubernetes, com foco em **segurança**, **performance**, **eficiência**, **DevOps** e **CI/CD**.
 
 ---
 
 ## Sobre o Projeto
 
-Este repositório constrói uma **plataforma de observabilidade completa** rodando em Kubernetes local (k3d), com suporte cross-platform para **Windows (PowerShell)** e **Linux (Bash)**. O stack cobre métricas, logs, traces e continuous profiling, com todos os bancos de dados monitorados automaticamente via Prometheus.
+O **youtube-cloud-native-journey** é uma jornada prática de desenvolvimento em nuvem. A ideia do repositório não é cobrir apenas observabilidade, mas mostrar como times de engenharia constroem aplicações reais para rodar em Kubernetes, desde a base de infraestrutura local até operação, automação, entrega contínua e qualidade de software.
 
-O objetivo é mostrar na prática como times de engenharia constroem ambientes de observabilidade reais — do cluster local até dashboards no Grafana — usando as ferramentas que o mercado usa hoje.
+O ponto de partida continua sendo um ambiente local com **k3d (Kubernetes no Docker)**, com suporte cross-platform para **Windows (PowerShell)** e **Linux (Bash)**. A partir dele, o projeto evolui para temas como:
+
+- provisionamento e setup do cluster local;
+- deploy de serviços de apoio e bancos de dados;
+- observabilidade com métricas, logs, traces e profiling;
+- aplicações instrumentadas e preparadas para Kubernetes;
+- práticas de segurança, performance e eficiência operacional;
+- automação, GitOps e pipelines de CI/CD.
+
+Em outras palavras: observabilidade segue importante, mas agora como parte de uma jornada maior de **desenvolvimento cloud-native moderno**.
 
 ---
 
-## Tech Stack
+## O Que Você Vai Encontrar Aqui
+
+| Área | Objetivo |
+|------|----------|
+| Kubernetes local | Criar um ambiente reproduzível com k3d para desenvolvimento e estudos |
+| Infraestrutura base | Instalar ingress, banco de dados, mensageria, secrets manager e serviços de apoio |
+| Observabilidade | Coletar métricas, logs, traces e profiles de apps e serviços |
+| Aplicações | Desenvolver e evoluir apps preparados para rodar em Kubernetes |
+| DevOps | Automatizar build, deploy, validação e operação do ambiente |
+| Segurança e eficiência | Aplicar boas práticas de runtime, manifests, imagens e pipelines |
+
+---
+
+## Stack Atual
 
 | Camada | Tecnologia |
 |--------|-----------|
 | Cluster local | [k3d](https://k3d.io) (Kubernetes in Docker) |
 | Ingress | [Traefik](https://traefik.io) |
-| Métricas | [Prometheus](https://prometheus.io) + [kube-prometheus-stack](https://github.com/prometheus-community/helm-charts) |
-| Logs | [Loki](https://grafana.com/oss/loki/) |
-| Traces | [Tempo](https://grafana.com/oss/tempo/) |
-| Profiling | [Pyroscope](https://grafana.com/oss/pyroscope/) |
-| OTel Collector | [Grafana Alloy](https://grafana.com/oss/alloy/) |
-| Visualização | [Grafana](https://grafana.com) |
-| PostgreSQL | [CloudNativePG](https://cloudnative-pg.io) |
-| Redis | [Bitnami Redis](https://github.com/bitnami/charts/tree/main/bitnami/redis) |
-| MongoDB | [MongoDB Community Operator](https://github.com/mongodb/mongodb-kubernetes-operator) |
-| RavenDB | [RavenDB Helm Chart](https://ravendb.net) |
-| RabbitMQ | [RabbitMQ Cluster Operator](https://www.rabbitmq.com/kubernetes/operator/operator-overview) |
-| Secrets Manager | [HashiCorp Vault](https://developer.hashicorp.com/vault) |
-| GitOps | [ArgoCD](https://argo-cd.readthedocs.io) |
-| Code Quality | [SonarQube](https://www.sonarsource.com/products/sonarqube/) |
-| App demo | [Nuxt 3](https://nuxt.com) + [Prisma](https://prisma.io) + OpenTelemetry |
+| Observabilidade | [Prometheus](https://prometheus.io), [Grafana](https://grafana.com), [Loki](https://grafana.com/oss/loki/), [Tempo](https://grafana.com/oss/tempo/), [Pyroscope](https://grafana.com/oss/pyroscope/), [Grafana Alloy](https://grafana.com/oss/alloy/) |
+| Bancos de dados | [CloudNativePG](https://cloudnative-pg.io), [Redis](https://github.com/bitnami/charts/tree/main/bitnami/redis), [MongoDB Community Operator](https://github.com/mongodb/mongodb-kubernetes-operator), [RavenDB](https://ravendb.net) |
+| Serviços de plataforma | [RabbitMQ](https://www.rabbitmq.com/kubernetes/operator/operator-overview), [HashiCorp Vault](https://developer.hashicorp.com/vault), [ArgoCD](https://argo-cd.readthedocs.io), [SonarQube](https://www.sonarsource.com/products/sonarqube/) |
+| Aplicações | ASP.NET, Nuxt, Prisma e instrumentação com OpenTelemetry |
+| Automação | Scripts PowerShell e Bash, Helm e workflows de CI/CD em evolução |
 
 ---
 
 ## Estrutura do Repositório
 
+```text
+00.Infraestrutura/   # Cluster local, scripts de setup, serviços e manifests auxiliares
+01.Aplicacoes/       # Aplicações de exemplo e experimentos de desenvolvimento cloud-native
+.github/             # Instruções do agente, skills, automações e memory bank do projeto
 ```
-00.Infraestrutura/          # Scripts de setup (windows/ + linux/ + yamls/)
-01.docker-images/           # Imagem nginx estática (workshop-nginx)
-02.docker-envs/             # Exemplo Docker com Node.js client+server
-03.docker-compose/          # Ambiente local de referência com docker-compose
-04.fundamentos-kubernetes/  # Manifests educacionais raw (01→05)
-05.helm-chart/              # App de produção: nuxt-workshop (app/ + helm/)
-06.explorando/              # Scripts de exploração e experimentos
-```
+
+Conforme a jornada evolui, o repositório tende a incorporar mais exemplos de aplicação, automação, deploy e operação.
 
 ---
 
-## Infraestrutura — Setup Rápido
+## Começo Rápido
 
-Execute os scripts **em ordem**. Todos são idempotentes — pode re-executar sem efeitos colaterais.
+O fluxo inicial do projeto continua sendo preparar o laboratório local e instalar os serviços-base em Kubernetes. Execute os scripts em ordem. Eles foram pensados para serem idempotentes, então reexecuções são seguras.
 
 ### Windows (PowerShell 7+)
 
 ```powershell
-.\00.Infraestrutura\windows\01.instalar-dependencias.ps1         # winget: k3d, kubectl, helm
-.\00.Infraestrutura\windows\02.verificar-instalacoes.ps1         # verifica todas as ferramentas
-.\00.Infraestrutura\windows\03.criar-cluster-k3d.ps1             # cluster k3d + Traefik
-.\00.Infraestrutura\windows\04.configurar-monitoramento.ps1      # Prometheus, Grafana, Loki, Tempo, Pyroscope, Alloy
-.\00.Infraestrutura\windows\05.configurar-cnpg-criar-base-pgsql.ps1  # PostgreSQL via CloudNativePG
-.\00.Infraestrutura\windows\06.configurar-redis.ps1              # Redis + ServiceMonitor
-.\00.Infraestrutura\windows\07.configurar-mongodb.ps1            # MongoDB Community + ServiceMonitor
-.\00.Infraestrutura\windows\08.configurar-ravendb.ps1            # RavenDB + Ingress
-.\00.Infraestrutura\windows\09.atualizar-hosts.ps1               # /etc/hosts automático
+.\00.Infraestrutura\windows\01.instalar-dependencias.ps1
+.\00.Infraestrutura\windows\02.verificar-instalacoes.ps1
+.\00.Infraestrutura\windows\03.criar-cluster-k3d.ps1
 ```
 
 ### Linux (Bash)
@@ -75,89 +79,92 @@ Execute os scripts **em ordem**. Todos são idempotentes — pode re-executar se
 bash 00.Infraestrutura/linux/01.instalar-dependencias.sh
 bash 00.Infraestrutura/linux/02.verificar-instalacoes.sh
 bash 00.Infraestrutura/linux/03.criar-cluster-k3d.sh
-bash 00.Infraestrutura/linux/04.configurar-monitoramento.sh
-bash 00.Infraestrutura/linux/05.configurar-cnpg-criar-base-pgsql.sh
-bash 00.Infraestrutura/linux/06.configurar-redis.sh
-bash 00.Infraestrutura/linux/07.configurar-mongodb.sh
-bash 00.Infraestrutura/linux/08.configurar-ravendb.sh
-bash 00.Infraestrutura/linux/09.atualizar-hosts.sh
 ```
 
-### Cluster k3d
+Depois disso, você pode instalar os blocos de infraestrutura e plataforma de forma incremental, conforme o tema estudado:
 
-| Configuração | Valor |
-|---|---|
-| Nome | `monitoramento` |
-| Worker nodes | 2 |
-| Registry local | `monitoramento-registry.localhost:5001` |
-| Portas expostas | `80`, `443`, `4317` (OTLP gRPC), `4318` (OTLP HTTP), `5432`, `6379`, `27017` |
+- monitoramento e observabilidade;
+- PostgreSQL, Redis, MongoDB e RavenDB;
+- RabbitMQ, Vault, ArgoCD e SonarQube;
+- aplicações instrumentadas e publicadas no cluster.
 
 ---
 
-## Stack de Observabilidade
+## Ambiente Base do Cluster
 
-Após executar o script `04`, o seguinte stack estará disponível:
+| Configuração | Valor |
+|---|---|
+| Nome do cluster | `monitoramento` |
+| Worker nodes | 2 |
+| Registry local | `monitoramento-registry.localhost:5001` |
+| Portas expostas | `80`, `443`, `4317`, `4318`, `5432`, `6379`, `27017` |
 
-| Componente | Acesso |
-|-----------|--------|
-| Grafana | <http://grafana.monitoramento.local> · senha: `workshop123` |
-| Loki | datasource no Grafana |
-| Tempo | `tempo.monitoramento.local` · OTLP: `4317` (gRPC) / `4318` (HTTP) |
-| Pyroscope | `pyroscope.monitoramento.local` · datasource no Grafana |
-| Alloy | `alloy.monitoring.svc.cluster.local:4318` (interno) |
+Esse ambiente serve como base para experimentar deploy, observabilidade, integrações e automação sem depender de cloud pública logo no início.
 
-**Fluxo de dados**: App → OpenTelemetry SDK → Alloy → {Loki, Tempo, Pyroscope} ← Grafana
+---
 
-### Bancos de Dados Monitorados
+## Observabilidade no Contexto da Jornada
 
-| Banco | Acesso externo | Ingress |
-|-------|----------------|---------|
-| PostgreSQL | `localhost:5432` | IngressRouteTCP |
-| Redis | `localhost:6379` | IngressRouteTCP |
-| MongoDB | `localhost:27017` | IngressRouteTCP |
-| RavenDB | `<nome>-ravendb.k3d.localhost` | Ingress HTTP |
+Observabilidade continua sendo um dos pilares do projeto. Hoje, o laboratório já permite subir um stack com:
 
-> Todos os bancos incluem `ServiceMonitor` para scrape automático pelo Prometheus.
+- **Grafana** para visualização;
+- **Prometheus** para métricas;
+- **Loki** para logs;
+- **Tempo** para traces;
+- **Pyroscope** para profiling;
+- **Alloy** como collector e roteador de sinais.
 
-### Serviços Adicionais
+Fluxo atual:
 
-| Serviço | Acesso | Credenciais |
-|---------|--------|-------------|
-| RabbitMQ | <http://rabbitmq.monitoramento.local> | `user` / `Workshop123rabbit` |
-| HashiCorp Vault | <http://vault.monitoramento.local> | Root token: `kubectl get secret vault-unseal-keys -n vault -o jsonpath='{.data.root-token}' \| base64 -d` |
-| ArgoCD | <http://argocd.monitoramento.local> | `admin` / `kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' \| base64 -d` |
-| SonarQube | <http://sonarqube.monitoramento.local> | `admin` / `admin` |
+```text
+Aplicação → OpenTelemetry SDK → Alloy → {Loki, Tempo, Pyroscope} → Grafana
+```
 
-Instale cada serviço individualmente via scripts em `00.Infraestrutura/servicos/<nome>/`:
+Além disso, os serviços de dados podem ser monitorados automaticamente via Prometheus para compor um ambiente mais próximo do que existe em produção.
+
+---
+
+## Serviços de Plataforma
+
+O repositório já inclui automação para subir componentes que fazem parte de uma stack cloud-native moderna:
+
+| Serviço | Papel no ambiente |
+|---------|-------------------|
+| PostgreSQL | Banco relacional para aplicações e experimentos |
+| Redis | Cache, mensageria leve e suporte a cenários de performance |
+| MongoDB | Banco orientado a documentos |
+| RavenDB | Banco NoSQL/documento com setup para laboratório |
+| RabbitMQ | Mensageria assíncrona |
+| Vault | Gestão de segredos |
+| ArgoCD | GitOps e entrega contínua |
+| SonarQube | Qualidade e análise estática de código |
+
+Esses serviços ajudam a mostrar o ciclo completo: desenvolver, empacotar, publicar, observar, operar e melhorar uma aplicação em ambiente Kubernetes.
 
 ---
 
 ## Pré-requisitos
 
 - Docker Desktop (Windows) ou Docker Engine (Linux)
-- 8 GB RAM disponível para o cluster k3d
-- Windows: PowerShell 7+ (`winget install Microsoft.PowerShell`)
-- Linux: Bash 4+, `curl`, `python3`
+- 8 GB de RAM disponíveis para o cluster local
+- Windows: PowerShell 7+
+- Linux: Bash 4+, `curl` e `python3`
 
 ---
 
-## Roadmap
+## Direção do Repositório
 
-> Módulos planejados para os próximos vídeos do canal.
+Os próximos módulos e evoluções do projeto seguem esta linha:
 
-### Em Desenvolvimento
+- aplicações cloud-native instrumentadas e prontas para Kubernetes;
+- boas práticas de manifests, imagens e runtime;
+- segurança de workloads e da cadeia de entrega;
+- performance, profiling e troubleshooting orientado por dados;
+- pipelines de CI/CD com GitHub Actions;
+- GitOps com ArgoCD;
+- arquitetura, automação e operação de serviços de apoio.
 
-- [ ] **App demo com OpenTelemetry** — Nuxt 3 + Prisma instrumentado com traces, logs e métricas enviados via Alloy
-- [ ] **Dashboards Grafana** — dashboards prontos para cada banco de dados e para a aplicação demo
-
-### Próximos Módulos
-
-- [ ] **CI/CD com GitHub Actions** — pipeline completo: build, push de imagem para o registry local, deploy no k3d
-- [ ] **GitOps com ArgoCD** — sync automático do Helm chart via ArgoCD, gestão de secrets com Sealed Secrets
-- [ ] **Alertas com Prometheus Alertmanager** — regras de alerta para SLOs, notificações via webhook
-- [ ] **Escalabilidade** — HPA, VPA e KEDA com métricas customizadas do Prometheus
-- [ ] **Segurança** — Network Policies, Pod Security Admission, Falco para runtime security
-- [ ] **Terraform** — provisionamento de infraestrutura cloud com HCP Terraform integrado ao CI/CD
+O objetivo é transformar o repositório em uma referência prática de **como construir software cloud-native de forma moderna**, e não apenas como instalar ferramentas isoladas.
 
 ---
 

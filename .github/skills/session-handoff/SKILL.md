@@ -19,18 +19,18 @@ You maintain the Memory Bank so every AI session begins with accurate, complete 
 | "resume project", "continue where we left off", "what is the state of the project?" | **Session START** → read all memory bank files                |
 | "update memory bank", "record session progress", "session handoff", "save context"  | **Session END** → update all changed files                    |
 | After each successful `progressive-commits` milestone                               | **Inline update** → update `activeContext.md` + `progress.md` |
-| "add task", "create task"                                                           | Create task file in `memory-bank/tasks/`                      |
-| "show tasks", "show tasks active"                                                   | Read `memory-bank/tasks/_index.md` and report                 |
+| "add task", "create task"                                                           | Create task file in `.github/memory-bank/tasks/`              |
+| "show tasks", "show tasks active"                                                   | Read `.github/memory-bank/tasks/_index.md` and report         |
 | "mark task done [ID]"                                                               | Update task file and `_index.md`                              |
 
 ---
 
 ## Memory Bank Location
 
-All files live under `memory-bank/` at the repository root:
+All files live under `.github/memory-bank/`:
 
 ```
-memory-bank/
+.github/memory-bank/
 ├── projectbrief.md       ← NEVER changes unless scope changes
 ├── productContext.md     ← WHY the project exists
 ├── systemPatterns.md     ← Architecture, ADRs, naming rules
@@ -58,13 +58,13 @@ Use the todo list to track and show the user your progress.
 
 Read these files in this order (they build on each other):
 
-1. `memory-bank/projectbrief.md`
-2. `memory-bank/productContext.md`
-3. `memory-bank/systemPatterns.md`
-4. `memory-bank/techContext.md`
-5. `memory-bank/activeContext.md`
-6. `memory-bank/progress.md`
-7. `memory-bank/tasks/_index.md`
+1. `.github/memory-bank/projectbrief.md`
+2. `.github/memory-bank/productContext.md`
+3. `.github/memory-bank/systemPatterns.md`
+4. `.github/memory-bank/techContext.md`
+5. `.github/memory-bank/activeContext.md`
+6. `.github/memory-bank/progress.md`
+7. `.github/memory-bank/tasks/_index.md`
 
 If any file is missing, report it as a gap. Do **not** invent content to fill it.
 
@@ -154,7 +154,7 @@ Replace the three sections:
 ### Step 4 — Update `tasks/_index.md`
 
 Move tasks between sections (In Progress / Completed / Pending / Abandoned).
-For any task that had significant activity, update its individual file in `memory-bank/tasks/` with a new progress log entry.
+For any task that had significant activity, update its individual file in `.github/memory-bank/tasks/` with a new progress log entry.
 
 ### Step 5 — Update patterns/tech files (only if changed)
 
@@ -197,7 +197,7 @@ When a `progressive-commits` milestone succeeds (script runs, service deploys, f
    - Mark the completed item as ✅
 3. Then commit the memory bank update alongside the milestone commit using type `docs` and scope `memory-bank`:
    ```
-   docs(memory-bank): update progress after <milestone>
+    docs(memory-bank): update progress after <milestone>
    ```
 
 ---
@@ -209,7 +209,7 @@ When a `progressive-commits` milestone succeeds (script runs, service deploys, f
 When user says "add task" or "create task":
 
 1. Assign the next sequential ID from `_index.md` (e.g., `TASK006`)
-2. Create `memory-bank/tasks/TASK006-<kebab-name>.md` using this template:
+2. Create `.github/memory-bank/tasks/TASK006-<kebab-name>.md` using this template:
 
 ```markdown
 # TASK006 - <Task Name>
@@ -254,7 +254,7 @@ When user says "add task" or "create task":
 
 When user says "update task TASK006":
 
-1. Open `memory-bank/tasks/TASK006-*.md`
+1. Open `.github/memory-bank/tasks/TASK006-*.md`
 2. Update the subtask table
 3. Add a new progress log entry with today's date
 4. Update `_index.md` if status changed
@@ -295,9 +295,9 @@ Execute step
     ↓
 Verify success
     ↓
-Update memory-bank (activeContext + progress)
+Update .github/memory-bank (activeContext + progress)
     ↓
-git add memory-bank/
+git add .github/memory-bank/
     ↓
 Conventional commit: "docs(memory-bank): update after <step>"
     ↓

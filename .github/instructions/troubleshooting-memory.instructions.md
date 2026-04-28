@@ -10,7 +10,7 @@ The Troubleshooting Memory is a companion to the Memory Bank that captures **inc
 ## Location
 
 ```
-memory-bank/troubleshooting/
+.github/memory-bank/troubleshooting/
 ├── _index.md          ← Searchable registry of all incidents
 ├── INC001-*.md        ← Individual incident records
 ├── INC002-*.md
@@ -19,7 +19,7 @@ memory-bank/troubleshooting/
 
 ## MANDATORY: Check Before Diagnosing
 
-Before spending any time investigating a reported error or pod issue, **read `memory-bank/troubleshooting/_index.md`** and search for matching tags or symptom keywords.
+Before spending any time investigating a reported error or pod issue, **read `.github/memory-bank/troubleshooting/_index.md`** and search for matching tags or symptom keywords.
 
 If a matching record exists:
 1. Apply the documented resolution steps
