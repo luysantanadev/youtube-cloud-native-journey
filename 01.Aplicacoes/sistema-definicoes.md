@@ -1,4 +1,7 @@
 sistema para cadastro básico:
+- um único usuário: nós
+  - superpoder para cadastrar/editar/excluir/ler
+
 - gerenciamento de clientes:
   - dados pessoais;
   - dados de contato;
@@ -14,6 +17,7 @@ dados de contatos:
 - e-mail principal
 
 dados de endereço 1+:
+- identificador
 - logradouro
 - número
 - cep

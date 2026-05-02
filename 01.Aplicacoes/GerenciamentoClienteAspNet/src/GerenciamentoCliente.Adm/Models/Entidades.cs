@@ -7,9 +7,8 @@ namespace GerenciamentoCliente.Adm.Models;
 
 public class Cliente : Notifiable<Notification>
 {
-    private List<Endereco> _enderecos { get; set; } = new List<Endereco>();
-    
     // // Construtor EF Core
+
     protected Cliente(int id, string nomeCompleto, string cpf, DateOnly nascimento, string email, string telefone)
     {
         Id = id;
@@ -29,33 +28,41 @@ public class Cliente : Notifiable<Notification>
         AtualizarTelefone(telefone);
     }
 
+    private List<Endereco> _enderecos { get; } = new();
+
     public int Id { get; private set; }
     public string NomeCompleto { get; private set; }
     public string Cpf { get; private set; }
     public DateOnly Nascimento { get; private set; }
     public string Email { get; private set; }
     public string Telefone { get; private set; }
-    
+
     public IReadOnlyList<Endereco> Enderecos => _enderecos.AsReadOnly();
+
+    public void AdicionarEndereco(Endereco endereco)
+    {
+        AddNotifications(endereco);
+        _enderecos.Add(endereco);
+    }
 
     public void AtualizarNome(string? nomeCompleto)
     {
+        var nome = nomeCompleto?.Trim().ToUpper() ?? "";
         AddNotifications(new Contract()
             .Requires()
-            .IsNotNullOrWhiteSpace(nomeCompleto, "NomeCompleto", "O nome completo é obrigatório")
-            .IsGreaterThan(nomeCompleto, 3, "NomeCompleto", "O nome completo deve conter mais de 3 caracteres")
-            .IsLowerThan(nomeCompleto, 100, "NomeCompleto", "O nome completo deve conter menos de 100 caracteres"));
-        NomeCompleto = nomeCompleto?.Trim().ToUpper() ?? "";
+            .IsNotNullOrWhiteSpace(nome, "NomeCompleto", "O nome completo é obrigatório")
+            .IsGreaterOrEqualsThan(nome, 3, "NomeCompleto", "O nome completo deve conter mais de 3 caracteres")
+            .IsLowerOrEqualsThan(nome, 100, "NomeCompleto", "O nome completo deve conter menos de 100 caracteres"));
+        NomeCompleto = nome;
     }
 
     public void AtualizarCpf(string? cpf)
     {
-        var cpfNormalizado = Regex.Replace(cpf ?? "", @"[^\D]", "");
+        var cpfNormalizado = Regex.Replace(cpf ?? "", @"[^\d]", "");
         AddNotifications(new Contract()
             .Requires()
-            .IsNullOrWhiteSpace(cpfNormalizado, "Cpf", "O CPF é obrigatório")
+            .IsNotNullOrWhiteSpace(cpfNormalizado, "Cpf", "O CPF é obrigatório")
             .IsCpf(cpfNormalizado, "Cpf", "O CPF é inválido"));
-
         Cpf = cpfNormalizado;
     }
 
@@ -94,7 +101,7 @@ public class Cliente : Notifiable<Notification>
             .IsNotNullOrWhiteSpace(telefone, "Telefone", "O telefone é obrigatório")
             .IsGreaterOrEqualsThan(telefone, 10, "Telefone", "O telefone deve conter ao menos 10 caracteres")
             .IsLowerOrEqualsThan(telefone, 11, "Telefone", "O telefone deve conter no máximo 11 caracteres"));
-        Telefone = Regex.Replace(telefone ?? "", @"[^\D]", "");
+        Telefone = Regex.Replace(telefone ?? "", @"[^\d]", "");
     }
 }
 
@@ -223,14 +230,12 @@ public class Cidade
     public int Id { get; private set; }
     public int EstadoId { get; private set; }
     public string Nome { get; private set; }
-    
-    public Estado  Estado { get; private set; }
+
+    public Estado Estado { get; private set; }
 }
 
 public class Estado
 {
-    private List<Cidade> _cidades { get; set; }= new List<Cidade>();
-    
     public Estado(int id, string sigla, string nome)
     {
         Id = id;
@@ -238,9 +243,11 @@ public class Estado
         Nome = nome;
     }
 
+    private List<Cidade> _cidades { get; } = new();
+
     public int Id { get; private set; }
     public string Sigla { get; private set; }
     public string Nome { get; private set; }
-    
+
     public IReadOnlyList<Cidade> Cidades => _cidades.AsReadOnly();
 }
