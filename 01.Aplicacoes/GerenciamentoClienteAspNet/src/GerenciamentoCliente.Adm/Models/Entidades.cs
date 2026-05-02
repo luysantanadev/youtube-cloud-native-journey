@@ -96,12 +96,14 @@ public class Cliente : Notifiable<Notification>
 
     public void AtualizarTelefone(string? telefone)
     {
+        var telefoneNormalizado = Regex.Replace(telefone ?? "", @"[^\d]", "");
         AddNotifications(new Contract()
             .Requires()
-            .IsNotNullOrWhiteSpace(telefone, "Telefone", "O telefone é obrigatório")
-            .IsGreaterOrEqualsThan(telefone, 10, "Telefone", "O telefone deve conter ao menos 10 caracteres")
-            .IsLowerOrEqualsThan(telefone, 11, "Telefone", "O telefone deve conter no máximo 11 caracteres"));
-        Telefone = Regex.Replace(telefone ?? "", @"[^\d]", "");
+            .IsNotNullOrWhiteSpace(telefoneNormalizado, "Telefone", "O telefone é obrigatório")
+            .IsGreaterOrEqualsThan(telefoneNormalizado, 10, "Telefone", "O telefone deve conter ao menos 10 caracteres")
+            .IsLowerOrEqualsThan(telefoneNormalizado, 11, "Telefone",
+                "O telefone deve conter no máximo 11 caracteres"));
+        Telefone = telefoneNormalizado;
     }
 }
 

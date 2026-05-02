@@ -12,6 +12,7 @@
       <PackageReference Include="Flunt" Version="2.0.5" />
       <PackageReference Include="Flunt.Br" Version="2.0.0" />
       <PackageReference Include="Flunt.Extensions.Br" Version="1.0.1" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="10.0.7"/>
       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.7" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.7">
         <PrivateAssets>all</PrivateAssets>

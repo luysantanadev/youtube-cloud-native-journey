@@ -1,4 +1,4 @@
-@model Cliente
+@model GerenciamentoCliente.Adm.Models.ViewModels.ClienteDetalhesViewModel
 
 @{
     ViewData["Title"] = "Details";
@@ -42,7 +42,44 @@
         </dd>
     </dl>
 </div>
+
 <div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
+    <h4>Enderecos</h4>
+    <hr/>
+    @if (Model.Enderecos.Count > 0)
+    {
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Logradouro</th>
+                <th>Numero</th>
+                <th>Bairro</th>
+                <th>CEP</th>
+                <th>Cidade</th>
+                <th>UF</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var endereco in Model.Enderecos)
+            {
+                <tr>
+                    <td>@endereco.Logradouro</td>
+                    <td>@endereco.Numero</td>
+                    <td>@endereco.Bairro</td>
+                    <td>@endereco.Cep</td>
+                    <td>@endereco.CidadeNome</td>
+                    <td>@endereco.EstadoSigla</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p class="text-muted">Cliente sem enderecos cadastrados.</p>
+    }
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
     <a asp-action="Index">Back to List</a>
 </div>

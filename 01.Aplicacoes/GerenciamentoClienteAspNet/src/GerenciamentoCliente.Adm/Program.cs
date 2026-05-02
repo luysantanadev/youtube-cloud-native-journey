@@ -9,7 +9,7 @@ public class Program
     public static void Main(string[] args)
     {
         DotEnv.Load();
-        
+
         var builder = WebApplication.CreateBuilder(args);
 
         builder.Services.AddDbContext<GerenciamentoClienteContexto>(options =>
@@ -20,7 +20,9 @@ public class Program
         });
 
         // Add services to the container.
-        builder.Services.AddControllersWithViews();
+        builder.Services
+            .AddControllersWithViews()
+            .AddRazorRuntimeCompilation();
 
         var app = builder.Build();
 

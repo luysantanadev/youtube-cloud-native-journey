@@ -1,4 +1,4 @@
-@model IEnumerable<Cliente>
+@model GerenciamentoCliente.Adm.Models.ViewModels.ClientePaginacaoViewModel
 
 @{
     ViewData["Title"] = "Index";
@@ -12,26 +12,16 @@
 <table class="table">
     <thead>
     <tr>
-        <th>
-            @Html.DisplayNameFor(model => model.NomeCompleto)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Cpf)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Nascimento)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Email)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Telefone)
-        </th>
+        <th>Nome Completo</th>
+        <th>CPF</th>
+        <th>Nascimento</th>
+        <th>Email</th>
+        <th>Telefone</th>
         <th></th>
     </tr>
     </thead>
     <tbody>
-    @foreach (var item in Model)
+    @foreach (var item in Model.Itens)
     {
         <tr>
             <td>
@@ -58,3 +48,18 @@
     }
     </tbody>
 </table>
+
+<div class="d-flex justify-content-between align-items-center">
+    <span>Pagina @Model.Page de @(Model.TotalPages == 0 ? 1 : Model.TotalPages)</span>
+    <div>
+        <a asp-action="Index"
+           asp-route-page="@(Model.Page - 1)"
+           asp-route-pageSize="@Model.PageSize"
+           class="btn btn-outline-secondary @(Model.Page <= 1 ? "disabled" : "")">Anterior</a>
+        <a asp-action="Index"
+           asp-route-page="@(Model.Page + 1)"
+           asp-route-pageSize="@Model.PageSize"
+           class="btn btn-outline-secondary @(Model.TotalPages > 0 && Model.Page >= Model.TotalPages ? "disabled" : "")">Proxima</a>
+    </div>
+</div>
+
