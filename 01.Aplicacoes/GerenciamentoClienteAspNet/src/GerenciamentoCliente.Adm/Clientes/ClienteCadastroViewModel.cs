@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using GerenciamentoCliente.Adm.Validations;
 
-namespace GerenciamentoCliente.Adm.Models.ViewModels;
+namespace GerenciamentoCliente.Adm.Clientes;
 
 public class ClienteCadastroViewModel
 {

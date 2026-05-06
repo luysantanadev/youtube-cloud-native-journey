@@ -1,10 +1,11 @@
-﻿namespace GerenciamentoCliente.Adm.Models.ViewModels;
+﻿namespace GerenciamentoCliente.Adm.Clientes;
 
 public class ClientePaginacaoViewModel
 {
     public IReadOnlyList<ClienteIndexViewModel> Itens { get; set; } = new List<ClienteIndexViewModel>();
-    public int Page { get; set; }
-    public int PageSize { get; set; }
+    public string? Consulta { get; set; } = string.Empty;
+    public int Pagina { get; set; }
+    public int TamanhoPagina { get; set; }
     public int TotalItems { get; set; }
     public int TotalPages { get; set; }
 }

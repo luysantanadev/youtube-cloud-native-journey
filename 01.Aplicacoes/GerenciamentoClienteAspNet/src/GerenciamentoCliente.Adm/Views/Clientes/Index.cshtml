@@ -1,4 +1,4 @@
-@model GerenciamentoCliente.Adm.Models.ViewModels.ClientePaginacaoViewModel
+@model GerenciamentoCliente.Adm.Clientes.ClientePaginacaoViewModel
 
 @{
     ViewData["Title"] = "Index";
@@ -9,6 +9,22 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+
+<form asp-action="Index" method="get" class="row g-2 mb-3">
+    <div class="col-md-6">
+        <input type="text"
+               name="consulta"
+               value="@Model.Consulta"
+               class="form-control"
+               placeholder="Pesquisar por nome ou CPF"/>
+    </div>
+    <div class="col-auto">
+        <input type="hidden" name="page" value="1"/>
+        <input type="hidden" name="pageSize" value="@Model.TamanhoPagina"/>
+        <button type="submit" class="btn btn-primary">Pesquisar</button>
+    </div>
+</form>
+
 <table class="table">
     <thead>
     <tr>
@@ -50,16 +66,18 @@
 </table>
 
 <div class="d-flex justify-content-between align-items-center">
-    <span>Pagina @Model.Page de @(Model.TotalPages == 0 ? 1 : Model.TotalPages)</span>
+    <span>Pagina @Model.Pagina de @(Model.TotalPages == 0 ? 1 : Model.TotalPages)</span>
     <div>
         <a asp-action="Index"
-           asp-route-page="@(Model.Page - 1)"
-           asp-route-pageSize="@Model.PageSize"
-           class="btn btn-outline-secondary @(Model.Page <= 1 ? "disabled" : "")">Anterior</a>
+           asp-route-page="@(Model.Pagina - 1)"
+           asp-route-pageSize="@Model.TamanhoPagina"
+           asp-route-searchTerm="@Model.Consulta"
+           class="btn btn-outline-secondary @(Model.Pagina <= 1 ? "disabled" : "")">Anterior</a>
         <a asp-action="Index"
-           asp-route-page="@(Model.Page + 1)"
-           asp-route-pageSize="@Model.PageSize"
-           class="btn btn-outline-secondary @(Model.TotalPages > 0 && Model.Page >= Model.TotalPages ? "disabled" : "")">Proxima</a>
+           asp-route-page="@(Model.Pagina + 1)"
+           asp-route-pageSize="@Model.TamanhoPagina"
+           asp-route-searchTerm="@Model.Consulta"
+           class="btn btn-outline-secondary @(Model.TotalPages > 0 && Model.Pagina >= Model.TotalPages ? "disabled" : "")">Proxima</a>
     </div>
 </div>
 

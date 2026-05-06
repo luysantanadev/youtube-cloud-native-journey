@@ -1,9 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Design;
+﻿using GerenciamentoCliente.Adm.Clientes;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace GerenciamentoCliente.Adm.Models;
-
 
 public class GerenciamentoClienteContexto : DbContext
 {
@@ -46,11 +45,11 @@ internal class ClienteConfiguracao : IEntityTypeConfiguration<Cliente>
             .WithOne(e => e.Cliente)
             .HasForeignKey(e => e.ClienteId)
             .OnDelete(DeleteBehavior.Cascade);
-        
+
         builder.HasIndex(x => x.NomeCompleto).HasMethod("GIN").HasOperators("gin_trgm_ops");
         builder.HasIndex(x => x.Email).HasMethod("GIN").HasOperators("gin_trgm_ops");
         builder.HasIndex(x => x.Cpf).HasMethod("GIN").HasOperators("gin_trgm_ops");
-        
+
         builder.Ignore(c => c.Notifications);
         builder.Ignore(c => c.IsValid);
     }
@@ -71,16 +70,16 @@ internal class EnderecoConfiguracao : IEntityTypeConfiguration<Endereco>
             .WithMany(c => c.Enderecos)
             .HasForeignKey(e => e.ClienteId)
             .OnDelete(DeleteBehavior.Cascade);
-        
+
         builder.HasIndex(x => x.Logradouro).HasMethod("GIN").HasOperators("gin_trgm_ops");
         builder.HasIndex(x => x.Bairro).HasMethod("GIN").HasOperators("gin_trgm_ops");
-        
+
         builder.Ignore(c => c.Notifications);
         builder.Ignore(c => c.IsValid);
     }
 }
 
-internal class EstadoConfiguracao: IEntityTypeConfiguration<Estado>
+internal class EstadoConfiguracao : IEntityTypeConfiguration<Estado>
 {
     public void Configure(EntityTypeBuilder<Estado> builder)
     {
@@ -94,7 +93,7 @@ internal class EstadoConfiguracao: IEntityTypeConfiguration<Estado>
     }
 }
 
-internal class CidadeConfiguracao: IEntityTypeConfiguration<Cidade>
+internal class CidadeConfiguracao : IEntityTypeConfiguration<Cidade>
 {
     public void Configure(EntityTypeBuilder<Cidade> builder)
     {
@@ -104,7 +103,7 @@ internal class CidadeConfiguracao: IEntityTypeConfiguration<Cidade>
             .WithMany(e => e.Cidades)
             .HasForeignKey(c => c.EstadoId)
             .OnDelete(DeleteBehavior.Cascade);
-        
+
         builder.HasIndex(x => x.Nome).HasMethod("GIN").HasOperators("gin_trgm_ops");
     }
 }

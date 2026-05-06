@@ -1,106 +1,33 @@
-using GerenciamentoCliente.Adm.Models;
-using GerenciamentoCliente.Adm.Models.ViewModels;
+using GerenciamentoCliente.Adm.Clientes;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace GerenciamentoCliente.Adm.Controllers;
 
 public class ClientesController : Controller
 {
-    private readonly GerenciamentoClienteContexto _context;
+    private readonly IClienteServico _servico;
 
-    public ClientesController(GerenciamentoClienteContexto context)
+    public ClientesController(IClienteServico servico)
     {
-        _context = context;
+        _servico = servico;
     }
 
+
     // GET: Clientes
-    public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
+    public async Task<IActionResult> Index(
+        ClientePaginacaoParametros parametros,
+        CancellationToken token)
     {
-        if (page <= 0)
-            page = 1;
-
-        if (pageSize <= 0)
-            pageSize = 10;
-        else if (pageSize > 100)
-            pageSize = 100;
-
-        var query = _context
-            .Clientes
-            .OrderBy(x => x.NomeCompleto);
-
-        var totalItems = await query.CountAsync();
-        var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
-
-        var itens = await query
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize)
-            .Select(x => new ClienteIndexViewModel
-            {
-                Id = x.Id,
-                NomeCompleto = x.NomeCompleto,
-                Cpf = x.Cpf,
-                Nascimento = x.Nascimento,
-                Email = x.Email,
-                Telefone = x.Telefone
-            })
-            .ToListAsync();
-
-        var viewModel = new ClientePaginacaoViewModel
-        {
-            Itens = itens,
-            Page = page,
-            PageSize = pageSize,
-            TotalItems = totalItems,
-            TotalPages = totalPages
-        };
-
-        return View(viewModel);
+        return View(await _servico.Buscar(parametros, token));
     }
 
     // GET: Clientes/Details/5
-    public async Task<IActionResult> Details(int? id)
+    public async Task<IActionResult> Details(int? id, CancellationToken token)
     {
         if (id == null) return NotFound();
-
-        var cliente = await _context
-            .Clientes
-            .Include(x => x.Enderecos)
-            .ThenInclude(x => x.Cidade)
-            .ThenInclude(x => x.Estado)
-            .Where(x => x.Id == id)
-            .FirstOrDefaultAsync();
-
+        var cliente = await _servico.Buscar(id.Value, token);
         if (cliente == null) return NotFound();
-
-        var enderecos = cliente
-            .Enderecos
-            .Select(e => new EnderecoDetalhesViewModel
-            {
-                Id = e.Id,
-                Logradouro = e.Logradouro,
-                Numero = e.Numero,
-                Complemento = e.Complemento,
-                Referencia = e.Referencia,
-                Bairro = e.Bairro,
-                Cep = e.Cep,
-                CidadeId = e.CidadeId,
-                CidadeNome = e.Cidade?.Nome ?? "",
-                EstadoSigla = e.Cidade?.Estado?.Sigla ?? ""
-            }).ToList();
-
-        var viewModel = new ClienteDetalhesViewModel
-        {
-            Id = cliente.Id,
-            NomeCompleto = cliente.NomeCompleto,
-            Cpf = cliente.Cpf,
-            Nascimento = cliente.Nascimento,
-            Email = cliente.Email,
-            Telefone = cliente.Telefone,
-            Enderecos = enderecos
-        };
-
-        return View(viewModel);
+        return View(cliente);
     }
 
     // GET: Clientes/Create
@@ -116,44 +43,29 @@ public class ClientesController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(
         [Bind("NomeCompleto,Cpf,Nascimento,Email,Telefone")]
-        ClienteCadastroViewModel cliente)
+        ClienteCadastroViewModel cliente, CancellationToken token)
     {
         if (!ModelState.IsValid)
             return View(cliente);
-        var novoCliente = new Cliente(cliente.NomeCompleto, cliente.Cpf, cliente.Nascimento, cliente.Email,
-            cliente.Telefone);
-        if (novoCliente.IsValid)
-        {
-            _context.Add(novoCliente);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
 
-        foreach (var validacao in novoCliente.Notifications)
+        var notificacoes = await _servico.Cadastrar(cliente, token);
+
+        if (!notificacoes.Any())
+            return RedirectToAction(nameof(Index));
+
+        foreach (var validacao in notificacoes)
             ModelState.AddModelError(validacao.Key, validacao.Message);
 
         return View(cliente);
     }
 
     // GET: Clientes/Edit/5
-    public async Task<IActionResult> Edit(int? id)
+    public async Task<IActionResult> Edit(int? id, CancellationToken token)
     {
         if (id == null) return NotFound();
-
-        var cliente = await _context.Clientes.FindAsync(id);
+        var cliente = await _servico.Buscar(id.Value, token);
         if (cliente == null) return NotFound();
-
-        var viewModel = new ClienteAtualizarViewModel
-        {
-            Id = cliente.Id,
-            NomeCompleto = cliente.NomeCompleto,
-            Cpf = cliente.Cpf,
-            Nascimento = cliente.Nascimento,
-            Email = cliente.Email,
-            Telefone = cliente.Telefone
-        };
-
-        return View(viewModel);
+        return View(cliente);
     }
 
     // POST: Clientes/Edit/5
@@ -161,79 +73,41 @@ public class ClientesController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id,
         [Bind("Id,NomeCompleto,Cpf,Nascimento,Email,Telefone")]
-        ClienteAtualizarViewModel clienteViewModel)
+        ClienteAtualizarViewModel cliente, CancellationToken token)
     {
-        if (id != clienteViewModel.Id) return NotFound();
+        if (id != cliente.Id) return NotFound();
 
         if (!ModelState.IsValid)
-            return View(clienteViewModel);
+            return View(cliente);
 
-        var cliente = await _context.Clientes.FindAsync(id);
-        if (cliente == null) return NotFound();
+        var notificacoes = await _servico.Atualizar(cliente, token);
 
-        cliente.AtualizarNome(clienteViewModel.NomeCompleto);
-        cliente.AtualizarCpf(clienteViewModel.Cpf);
-        cliente.AtualizarNascimento(clienteViewModel.Nascimento);
-        cliente.AtualizarEmail(clienteViewModel.Email);
-        cliente.AtualizarTelefone(clienteViewModel.Telefone);
+        if (!notificacoes.Any())
+            return RedirectToAction(nameof(Index));
 
-        if (!cliente.IsValid)
-        {
-            foreach (var validacao in cliente.Notifications)
-                ModelState.AddModelError(validacao.Key, validacao.Message);
+        foreach (var validacao in notificacoes)
+            ModelState.AddModelError(validacao.Key, validacao.Message);
 
-            return View(clienteViewModel);
-        }
-
-        try
-        {
-            _context.Update(cliente);
-            await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!ClienteExists(clienteViewModel.Id)) return NotFound();
-            throw;
-        }
-
-        return RedirectToAction(nameof(Index));
+        return View(cliente);
     }
 
 
     // GET: Clientes/Delete/5
-    public async Task<IActionResult> Delete(int? id)
+    public async Task<IActionResult> Delete(int? id, CancellationToken token)
     {
         if (id == null) return NotFound();
-
-        var cliente = await _context.Clientes.FindAsync(id);
+        var cliente = await _servico.Buscar(id.Value, token);
         if (cliente == null) return NotFound();
-
-        var viewModel = new ClienteExcluirViewModel
-        {
-            Id = cliente.Id,
-            NomeCompleto = cliente.NomeCompleto,
-            Cpf = cliente.Cpf,
-            Email = cliente.Email
-        };
-
-        return View(viewModel);
+        return View(cliente);
     }
 
     // POST: Clientes/Delete/5
     [HttpPost]
     [ActionName("Delete")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int id)
+    public async Task<IActionResult> Delete(int id, CancellationToken token)
     {
-        var cliente = await _context.Clientes.FindAsync(id);
-        if (cliente == null) return NotFound();
-        _context.Clientes.Remove(cliente);
-        await _context.SaveChangesAsync();
+        await _servico.Excluir(id, token);
         return RedirectToAction(nameof(Index));
-    }
-
-    private bool ClienteExists(int id)
-    {
-        return _context.Clientes.Any(e => e.Id == id);
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace GerenciamentoCliente.Adm.Models.ViewModels;
+﻿namespace GerenciamentoCliente.Adm.Clientes;
 
 public class EnderecoDetalhesViewModel
 {

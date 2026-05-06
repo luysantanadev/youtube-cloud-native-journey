@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using GerenciamentoCliente.Adm.Models.ViewModels;
+using GerenciamentoCliente.Adm.Clientes;
 using GerenciamentoCliente.Adm.Validations;
 
 namespace GerenciamentoCliente.Adm.Tests;

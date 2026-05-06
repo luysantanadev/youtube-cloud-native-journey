@@ -1,4 +1,5 @@
 using dotenv.net;
+using GerenciamentoCliente.Adm.Clientes;
 using GerenciamentoCliente.Adm.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,6 +19,9 @@ public class Program
             options.UseLowerCaseNamingConvention();
             options.UseNpgsql(connectionString);
         });
+
+        builder.Services.AddScoped<IClienteRepositorio, ClienteRepositorio>();
+        builder.Services.AddScoped<IClienteServico, ClienteServico>();
 
         // Add services to the container.
         builder.Services
