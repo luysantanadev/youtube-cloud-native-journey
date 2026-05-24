@@ -9,7 +9,7 @@
 #   e ingresses) é gerenciado em 00.Infraestrutura/servicos/01.grafana/instalar.sh.
 #
 # NOTES
-#   Pré-requisito: cluster monitoramento em execução (03.criar-cluster-k3d.sh)
+#   Pré-requisito: cluster monitoramento em execução (03.criar-cluster-k3d.wsl.sh)
 #   Próximo    : sudo bash 09.atualizar-hosts.sh  → acesso via browser
 # ==============================================================================
 

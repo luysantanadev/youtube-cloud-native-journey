@@ -9,10 +9,13 @@
 #   instaladas e confirma que o daemon do Docker está respondendo.
 #
 # NOTES
-#   Execute em um novo terminal após rodar 01.install-dependencies.sh.
+#   Execute em um novo terminal após rodar 01.instalar-dependencias.wsl.sh.
 # ==============================================================================
 
 set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/wsl-common.sh"
 
 # Cores ANSI
 CYAN='\033[0;36m'
@@ -61,10 +64,10 @@ done
 echo ""
 echo -e "${CYAN}==> Docker Daemon${RESET}"
 
-if docker info &>/dev/null; then
+if command_exists docker && docker info &>/dev/null; then
   write_check "true" "daemon respondendo"
 else
-  write_check "false" "daemon não está rodando — inicie com: sudo systemctl start docker"
+  write_check "false" "daemon não está rodando — inicie o Docker Engine/Docker Desktop no host WSL"
   ok=false
 fi
 

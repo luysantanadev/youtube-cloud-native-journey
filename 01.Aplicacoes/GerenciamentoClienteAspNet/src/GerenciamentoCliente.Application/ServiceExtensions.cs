@@ -2,7 +2,6 @@
 using GerenciamentoCliente.Data;
 using GerenciamentoCliente.Data.Clientes;
 using GerenciamentoCliente.Domain.Clientes;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 

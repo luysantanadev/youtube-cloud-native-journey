@@ -104,8 +104,6 @@ kind: Ingress
 metadata:
   name: rabbitmq-management
   namespace: rabbitmq
-  annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: web
 spec:
   ingressClassName: traefik
   rules:

@@ -97,8 +97,6 @@ kind: Ingress
 metadata:
   name: vault
   namespace: vault
-  annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: web
 spec:
   ingressClassName: traefik
   rules:
@@ -109,7 +107,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: vault
+                name: vault-ui
                 port:
                   number: 8200
 EOF

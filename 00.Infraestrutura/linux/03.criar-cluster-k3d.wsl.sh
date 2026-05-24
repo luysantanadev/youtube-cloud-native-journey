@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # ==============================================================================
 # SYNOPSIS
-#   Cria o cluster k3d 'monitoramento' com Traefik para o laboratório local.
+#   Recria o cluster k3d 'monitoramento' com Traefik para WSL.
 #
 # DESCRIPTION
-#   - Remove cluster anterior 'monitoramento' se existir.
+#   - Recria o cluster 'monitoramento' a cada execução para aplicar novas configs.
 #   - Cria cluster k3d multi-node com loadbalancer nas portas 80/443 + TCP.
 #   - Instala Traefik (ingress + entrypoints TCP) via Helm.
-#   - Idempotente: pode ser reexecutado para resetar o ambiente.
+#   - Reexecutável: remove o cluster anterior e sobe uma instância nova.
 #
 # NOTES
 #   Pré-requisito: Docker em execução, k3d, kubectl e helm no PATH.
@@ -18,6 +18,7 @@ set -euo pipefail
 CYAN='\033[0;36m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; RED='\033[0;31m'; RESET='\033[0m'
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/wsl-common.sh"
 
 write_step()    { echo -e "\n${CYAN}==> $1${RESET}"; }
 write_success() { echo -e "    ${GREEN}OK: $1${RESET}"; }
@@ -35,24 +36,12 @@ for tool in docker k3d kubectl helm; do
     fi
 done
 
-if ! docker info &>/dev/null; then
-    write_fail "Docker não está rodando. Inicie com: sudo systemctl start docker"
-fi
+require_docker_runtime
 
 write_success "Todos os pré-requisitos encontrados."
 
 # ---------------------------------------------------------------------------
-# 1. Limpar cluster anterior (se existir)
-# ---------------------------------------------------------------------------
-write_step "Verificando cluster existente..."
-
-if k3d cluster list 2>/dev/null | grep -q "^monitoramento"; then
-    write_warn "Cluster 'monitoramento' encontrado. Deletando..."
-    k3d cluster delete monitoramento || write_fail "Falha ao deletar o cluster anterior."
-fi
-
-# ---------------------------------------------------------------------------
-# 2. Detectar hardware e memória disponível para reservas do kubelet
+# 1. Detectar hardware e memória disponível para reservas do kubelet
 # ---------------------------------------------------------------------------
 total_kb=$(grep MemTotal /proc/meminfo | awk '{print $2}')
 total_gb=$(( total_kb / 1024 / 1024 ))
@@ -69,20 +58,26 @@ echo "  RAM total       : ~${total_gb} GB"
 echo "  system-reserved : ${sys_reserved_mem}"
 
 # ---------------------------------------------------------------------------
-# 3. Criar cluster
+# 2. Recriar cluster
 # ---------------------------------------------------------------------------
+write_step "Removendo cluster existente (se houver)..."
+if k3d cluster list 2>/dev/null | grep -q "^monitoramento"; then
+    k3d cluster delete monitoramento
+    write_success "Cluster anterior removido."
+else
+    write_success "Nenhum cluster anterior encontrado."
+fi
+
 write_step "Criando cluster k3d 'monitoramento'..."
 
+port_args=()
+for port in 80 443 4317 4318 5432 6379 27017 5672; do
+    port_args+=(--port "${port}:${port}@loadbalancer")
+done
+
 k3d cluster create monitoramento \
-    --port "80:80@loadbalancer"         \
-    --port "443:443@loadbalancer"       \
-    --port "4317:4317@loadbalancer"     \
-    --port "4318:4318@loadbalancer"     \
-    --port "5432:5432@loadbalancer"     \
-    --port "6379:6379@loadbalancer"     \
-    --port "27017:27017@loadbalancer"   \
-    --port "5672:5672@loadbalancer"     \
-    --agents 3                          \
+    "${port_args[@]}"              \
+    --agents 3                     \
     --k3s-arg "--disable=traefik@server:0" \
     --k3s-arg "--kubelet-arg=system-reserved=cpu=100m,memory=${sys_reserved_mem}@server:0" \
     --k3s-arg "--kubelet-arg=kube-reserved=cpu=100m,memory=128Mi@server:0"              \
@@ -95,12 +90,14 @@ k3d cluster create monitoramento \
     --kubeconfig-switch-context \
     --wait
 
-write_success "Cluster criado."
+write_success "Cluster recriado."
 
 # ---------------------------------------------------------------------------
-# 4. Corrigir kubeconfig (127.0.0.1 em vez de 0.0.0.0)
+# 3. Corrigir kubeconfig (127.0.0.1 em vez de 0.0.0.0)
 # ---------------------------------------------------------------------------
 write_step "Corrigindo endpoint do kubeconfig..."
+
+k3d kubeconfig merge monitoramento >/dev/null
 
 current_server=$(kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}')
 api_port=$(echo "$current_server" | sed 's/.*://') || \
@@ -208,5 +205,5 @@ echo "Próximos passos:"
 echo "  bash 00.Infraestrutura/servicos/01.grafana/instalar.sh"
 echo ""
 echo "Para resetar o cluster a qualquer momento:"
-echo "  bash 03.criar-cluster-k3d.sh"
+echo "  bash 03.criar-cluster-k3d.wsl.sh"
 echo ""

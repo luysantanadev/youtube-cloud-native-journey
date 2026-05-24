@@ -266,8 +266,6 @@ kind: Ingress
 metadata:
   name: ravendb-a
   namespace: ravendb
-  annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: web
 spec:
   ingressClassName: traefik
   rules:
@@ -287,8 +285,6 @@ kind: Ingress
 metadata:
   name: ravendb-b
   namespace: ravendb
-  annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: web
 spec:
   ingressClassName: traefik
   rules:
@@ -308,8 +304,6 @@ kind: Ingress
 metadata:
   name: ravendb-c
   namespace: ravendb
-  annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: web
 spec:
   ingressClassName: traefik
   rules:

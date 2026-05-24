@@ -10,11 +10,10 @@ monitoringPasscode: "sonarWorkshop123"
 ingress:
   enabled: true
   ingressClassName: traefik
-  annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: web
   hosts:
     - name: sonarqube.monitoramento.local
       path: /
+      pathType: Prefix
 
 prometheusMonitoring:
   podMonitor:

@@ -1,7 +1,5 @@
 using dotenv.net;
 using GerenciamentoCliente.App;
-using GerenciamentoCliente.Data;
-using Microsoft.EntityFrameworkCore;
 
 namespace GerenciamentoCliente.Adm;
 

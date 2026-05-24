@@ -1,5 +1,4 @@
 ﻿using System.Linq.Expressions;
-using GerenciamentoCliente.App.Shared;
 using GerenciamentoCliente.Domain.Clientes;
 using GerenciamentoCliente.Domain.Shared;
 using Microsoft.EntityFrameworkCore;
@@ -12,7 +11,6 @@ public sealed class ClientePaginacaoParametros : PaginacaoParametros<Cliente>
     {
         if (string.IsNullOrWhiteSpace(Consulta))
             return x => true;
-
 
         var pesquisa = string.Join("%", Consulta
             .Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
@@ -33,5 +31,3 @@ public sealed class ClientePaginacaoParametros : PaginacaoParametros<Cliente>
         return cliente => cliente;
     }
 }
-
-// entidades e viewmodels

@@ -7,10 +7,8 @@ public sealed class ClienteServico : IClienteServico
 {
     private readonly IClienteRepositorio _repositorio;
 
-    public ClienteServico(IClienteRepositorio repositorio)
-    {
+    public ClienteServico(IClienteRepositorio repositorio) =>
         _repositorio = repositorio;
-    }
 
 
     public async Task<ClientePaginacaoViewModel> Buscar(ClientePaginacaoParametros parametros, CancellationToken token)
@@ -77,7 +75,7 @@ public sealed class ClienteServico : IClienteServico
     {
         var clienteExistente = await _repositorio.Buscar(cliente.Id, token);
         if (clienteExistente == null)
-            return new List<Notification>();
+            return new List<Notification>(); //bug: cliente que não existe é valido?
         clienteExistente.AtualizarNome(cliente.NomeCompleto);
         clienteExistente.AtualizarEmail(cliente.Email);
         clienteExistente.AtualizarNascimento(cliente.Nascimento);
@@ -87,8 +85,6 @@ public sealed class ClienteServico : IClienteServico
         return clienteExistente.Notifications;
     }
 
-    public async Task<bool> Excluir(int id, CancellationToken token)
-    {
-        return await _repositorio.Excluir(id, token);
-    }
+    public async Task<bool> Excluir(int id, CancellationToken token) => 
+        await _repositorio.Excluir(id, token);
 }

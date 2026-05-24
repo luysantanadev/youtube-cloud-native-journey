@@ -7,10 +7,8 @@ public class ClientesController : Controller
 {
     private readonly IClienteServico _servico;
 
-    public ClientesController(IClienteServico servico)
-    {
+    public ClientesController(IClienteServico servico) => 
         _servico = servico;
-    }
 
 
     // GET: Clientes

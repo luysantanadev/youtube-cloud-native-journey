@@ -1,5 +1,4 @@
-﻿using System.Linq.Expressions;
-using GerenciamentoCliente.Domain.Shared;
+﻿using GerenciamentoCliente.Domain.Shared;
 using Microsoft.EntityFrameworkCore;
 
 namespace GerenciamentoCliente.Data.Shared;
