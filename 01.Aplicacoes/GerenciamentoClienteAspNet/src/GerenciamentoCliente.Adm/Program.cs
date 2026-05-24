@@ -1,6 +1,6 @@
 using dotenv.net;
-using GerenciamentoCliente.Adm.Clientes;
-using GerenciamentoCliente.Adm.Models;
+using GerenciamentoCliente.App;
+using GerenciamentoCliente.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace GerenciamentoCliente.Adm;
@@ -13,15 +13,7 @@ public class Program
 
         var builder = WebApplication.CreateBuilder(args);
 
-        builder.Services.AddDbContext<GerenciamentoClienteContexto>(options =>
-        {
-            var connectionString = Environment.GetEnvironmentVariable("PGSQL_CONNECTION_STRING");
-            options.UseLowerCaseNamingConvention();
-            options.UseNpgsql(connectionString);
-        });
-
-        builder.Services.AddScoped<IClienteRepositorio, ClienteRepositorio>();
-        builder.Services.AddScoped<IClienteServico, ClienteServico>();
+        builder.Services.AddApplicationServices();
 
         // Add services to the container.
         builder.Services

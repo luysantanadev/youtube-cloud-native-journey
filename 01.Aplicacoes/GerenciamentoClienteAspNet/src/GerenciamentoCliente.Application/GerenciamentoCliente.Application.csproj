@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>GerenciamentoCliente.App</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\GerenciamentoCliente.Data\GerenciamentoCliente.Data.csproj"/>
+        <ProjectReference Include="..\GerenciamentoCliente.Domain\GerenciamentoCliente.Domain.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.1"/>
+        <PackageReference Include="EFCore.NamingConventions" Version="10.0.1"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Reference Include="Microsoft.AspNetCore">
+            <HintPath>C:\Program Files\dotnet\shared\Microsoft.AspNetCore.App\10.0.7\Microsoft.AspNetCore.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+
+</Project>

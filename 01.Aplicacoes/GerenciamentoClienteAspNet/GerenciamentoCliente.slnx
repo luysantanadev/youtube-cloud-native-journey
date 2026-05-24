@@ -1,3 +1,18 @@
 <Solution>
-  <Project Path="src/GerenciamentoCliente.Adm/GerenciamentoCliente.Adm.csproj" />
+  <Folder Name="/1.domain/">
+    <Project Path="src/GerenciamentoCliente.Domain/GerenciamentoCliente.Domain.csproj" />
+    <Project Path="tests/GerenciamentoCliente.Domain.Tests/GerenciamentoCliente.Domain.Tests.csproj" />
+  </Folder>
+  <Folder Name="/2.data/">
+    <Project Path="src/GerenciamentoCliente.Data/GerenciamentoCliente.Data.csproj" />
+    <Project Path="tests/GerenciamentoCliente.Data.Tests/GerenciamentoCliente.Data.Tests.csproj" />
+  </Folder>
+  <Folder Name="/3.app/">
+    <Project Path="src/GerenciamentoCliente.Application/GerenciamentoCliente.Application.csproj" />
+    <Project Path="tests/GerenciamentoCliente.Application.Tests/GerenciamentoCliente.Application.Tests.csproj" />
+  </Folder>
+  <Folder Name="/4.ui/">
+    <Project Path="src/GerenciamentoCliente.Adm/GerenciamentoCliente.Adm.csproj" />
+    <Project Path="tests/GerenciamentoCliente.Adm.Tests/GerenciamentoCliente.Adm.Tests.csproj" />
+  </Folder>
 </Solution>

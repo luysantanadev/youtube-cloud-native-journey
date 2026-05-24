@@ -1,4 +1,4 @@
-using GerenciamentoCliente.Adm.Clientes;
+using GerenciamentoCliente.App.Clientes;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GerenciamentoCliente.Adm.Controllers;
@@ -18,7 +18,8 @@ public class ClientesController : Controller
         ClientePaginacaoParametros parametros,
         CancellationToken token)
     {
-        return View(await _servico.Buscar(parametros, token));
+        var consulta = await _servico.Buscar(parametros, token);
+        return View(consulta);
     }
 
     // GET: Clientes/Details/5
