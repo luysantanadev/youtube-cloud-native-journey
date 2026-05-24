@@ -1,0 +1,31 @@
+schema: spec-driven
+
+context: |
+  Este repositório documenta uma jornada prática de aplicações cloud-native em Kubernetes, com foco em arquitetura, automação e operação.
+
+  Estrutura do projeto:
+  - 00.Infraestrutura/: scripts para preparar o ambiente local em k3d, com versões equivalentes para Windows (PowerShell Core) e Linux (bash).
+  - 01.Aplicacoes/: aplicações que serão publicadas no cluster; hoje existe uma aplicação principal em .NET, mas o projeto também evoluirá com serviços em Go e Python.
+
+  Ambiente e plataforma:
+  - Cluster baseado em k3d.
+  - Instalação de bancos de dados, stack Grafana, mensageria, autenticação e cofre de segredos no cluster.
+  - Observabilidade como requisito central: Prometheus, Tempo, Loki, Pyroscope, Grafana e dashboards.
+
+  Prioridades de desenvolvimento:
+  1. Segurança
+  2. Eficiência
+  3. Observabilidade
+
+  Diretrizes para agentes de IA:
+  - Produza conteúdo e decisões otimizados para automação e repetição segura.
+  - Preserve paridade entre Windows e Linux sempre que houver scripts.
+  - Considere o cluster e os serviços como parte da solução, não como detalhes acessórios.
+  - Prefira descrições objetivas, acionáveis e orientadas a implementação.
+
+rules:
+  proposal:
+    - Keep proposals under 500 words
+    - Always include a "Non-goals" section
+  tasks:
+    - Break tasks into chunks of max 2 hours
