@@ -1,19 +1,16 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 
-namespace GerenciamentoCliente.App.Shared;
+namespace GerenciamentoCliente.Application.Shared;
 
 /// <summary>
-///     Validates Brazilian phone format
-///     Accepts: xx x xxxx-xxxx (mobile) or xx xxxx-xxxx (landline)
+///     Validates Brazilian phone number by digit count (10 for landline, 11 for mobile).
+///     Accepts any formatting — digits are extracted before validation.
 /// </summary>
 [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Parameter)]
 public class TelefoneAttribute : ValidationAttribute
 {
-    private const string PhonePattern = @"^(\d{2}\s\d{4}-\d{4}|\d{2}\s\d{5}-\d{4}|\d{2}\d{4}-\d{4})$";
-
-    public TelefoneAttribute() : base(
-        "O telefone deve estar no formato (11) 9xxxx-xxxx para celular ou (11) xxxx-xxxx para fixo")
+    public TelefoneAttribute() : base("O telefone deve conter 10 dígitos (fixo) ou 11 dígitos (celular).")
     {
     }
 
@@ -27,6 +24,8 @@ public class TelefoneAttribute : ValidationAttribute
         if (string.IsNullOrEmpty(telefone))
             return true;
 
-        return Regex.IsMatch(telefone, PhonePattern);
+        var digits = Regex.Replace(telefone, @"\D", "");
+
+        return digits.Length is 10 or 11;
     }
 }

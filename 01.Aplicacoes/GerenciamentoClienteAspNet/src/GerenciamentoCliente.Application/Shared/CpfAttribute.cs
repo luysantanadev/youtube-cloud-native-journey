@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 
-namespace GerenciamentoCliente.App.Shared;
+namespace GerenciamentoCliente.Application.Shared;
 
 /// <summary>
 ///     Validates Brazilian CPF using the official check-digit algorithm.

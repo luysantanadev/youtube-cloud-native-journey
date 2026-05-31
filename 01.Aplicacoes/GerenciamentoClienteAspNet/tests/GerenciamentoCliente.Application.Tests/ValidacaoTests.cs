@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using GerenciamentoCliente.App.Clientes;
-using GerenciamentoCliente.App.Shared;
+using GerenciamentoCliente.Application.Clientes;
+using GerenciamentoCliente.Application.Shared;
 
 namespace GerenciamentoCliente.Application.Tests;
 

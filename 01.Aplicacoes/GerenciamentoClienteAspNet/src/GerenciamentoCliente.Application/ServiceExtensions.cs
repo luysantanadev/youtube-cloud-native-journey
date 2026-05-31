@@ -1,11 +1,11 @@
-﻿using GerenciamentoCliente.App.Clientes;
+﻿using GerenciamentoCliente.Application.Clientes;
 using GerenciamentoCliente.Data;
 using GerenciamentoCliente.Data.Clientes;
 using GerenciamentoCliente.Domain.Clientes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace GerenciamentoCliente.App;
+namespace GerenciamentoCliente.Application;
 
 public static class ServiceExtensions
 {

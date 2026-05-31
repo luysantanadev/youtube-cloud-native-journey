@@ -1,12 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using GerenciamentoCliente.App.Shared;
+using GerenciamentoCliente.Application.Shared;
 
-namespace GerenciamentoCliente.App.Clientes;
+namespace GerenciamentoCliente.Application.Clientes;
 
 public class ClienteCadastroViewModel
 {
     [Required(ErrorMessage = "O nome completo é obrigatório")]
     [StringLength(100, MinimumLength = 3, ErrorMessage = "O nome completo deve conter entre 3 e 100 caracteres")]
+    [Display(Name = "Nome Completo")]
     public string NomeCompleto { get; set; }
 
     [Required]
@@ -20,6 +21,7 @@ public class ClienteCadastroViewModel
 
     [Required]
     [EmailAddress(ErrorMessage = "O email deve ser um endereço de email válido")]
+    [Display(Name = "E-mail")]
     public string Email { get; set; }
 
     [Required]

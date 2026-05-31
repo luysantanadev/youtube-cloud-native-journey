@@ -1,4 +1,4 @@
-using GerenciamentoCliente.App.Clientes;
+using GerenciamentoCliente.Application.Clientes;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GerenciamentoCliente.Adm.Controllers;
@@ -7,7 +7,7 @@ public class ClientesController : Controller
 {
     private readonly IClienteServico _servico;
 
-    public ClientesController(IClienteServico servico) => 
+    public ClientesController(IClienteServico servico) =>
         _servico = servico;
 
 

@@ -1,6 +1,6 @@
 ﻿using Flunt.Notifications;
 
-namespace GerenciamentoCliente.App.Clientes;
+namespace GerenciamentoCliente.Application.Clientes;
 
 public interface IClienteServico
 {

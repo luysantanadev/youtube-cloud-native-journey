@@ -3,7 +3,7 @@ using GerenciamentoCliente.Domain.Clientes;
 using GerenciamentoCliente.Domain.Shared;
 using Microsoft.EntityFrameworkCore;
 
-namespace GerenciamentoCliente.App.Clientes;
+namespace GerenciamentoCliente.Application.Clientes;
 
 public sealed class ClientePaginacaoParametros : PaginacaoParametros<Cliente>
 {

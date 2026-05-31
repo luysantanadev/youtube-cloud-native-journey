@@ -1,4 +1,4 @@
-﻿namespace GerenciamentoCliente.App.Clientes;
+﻿namespace GerenciamentoCliente.Application.Clientes;
 
 public class ClientePaginacaoViewModel
 {

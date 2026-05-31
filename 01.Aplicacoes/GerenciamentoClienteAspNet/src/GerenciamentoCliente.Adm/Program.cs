@@ -1,5 +1,5 @@
 using dotenv.net;
-using GerenciamentoCliente.App;
+using GerenciamentoCliente.Application;
 
 namespace GerenciamentoCliente.Adm;
 

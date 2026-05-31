@@ -1,7 +1,7 @@
 ﻿using Flunt.Notifications;
 using GerenciamentoCliente.Domain.Clientes;
 
-namespace GerenciamentoCliente.App.Clientes;
+namespace GerenciamentoCliente.Application.Clientes;
 
 public sealed class ClienteServico : IClienteServico
 {
