@@ -1,8 +1,35 @@
-﻿@{
+@{
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+@section PageHeader {
+    <div class="row mb-2">
+        <div class="col-sm-6">
+            <h3 class="m-0">Dashboard</h3>
+        </div>
+        <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-end">
+                <li class="breadcrumb-item active">Home</li>
+            </ol>
+        </div>
+    </div>
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <h5 class="card-title">
+                <i class="fas fa-tachometer-alt me-2 text-primary"></i>
+                Bem-vindo ao Gerenciamento de Clientes
+            </h5>
+            <div class="card-body">
+                <p class="text-muted">
+                    Utilize o menu lateral para navegar entre as funcionalidades do sistema.
+                </p>
+                <a asp-controller="Clientes" asp-action="Index" class="btn btn-primary">
+                    <i class="fas fa-users me-1"></i> Ver Clientes
+                </a>
+            </div>
+        </div>
+    </div>
 </div>

@@ -1,83 +1,101 @@
-@model ClientePaginacaoViewModel
+@model GerenciamentoCliente.Application.Clientes.ClientePaginacaoViewModel
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Clientes";
 }
 
-<h1>Index</h1>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-
-<form asp-action="Index" method="get" class="row g-2 mb-3">
-    <div class="col-md-6">
-        <input type="text"
-               name="consulta"
-               value="@Model.Consulta"
-               class="form-control"
-               placeholder="Pesquisar por nome ou CPF"/>
+@section PageHeader {
+    <div class="row mb-2">
+        <div class="col-sm-6">
+            <h3 class="m-0">Clientes</h3>
+        </div>
+        <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-end">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+                <li class="breadcrumb-item active">Clientes</li>
+            </ol>
+        </div>
     </div>
-    <div class="col-auto">
-        <input type="hidden" name="page" value="1"/>
-        <input type="hidden" name="pageSize" value="@Model.TamanhoPagina"/>
-        <button type="submit" class="btn btn-primary">Pesquisar</button>
+}
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="card-title mb-0">Lista de Clientes</h3>
+        <a asp-action="Create" class="btn btn-primary btn-sm ms-auto">
+            <i class="fas fa-plus me-1"></i> Novo Cliente
+        </a>
     </div>
-</form>
+    <div class="card-body">
+        <form asp-action="Index" method="get" class="row g-2 mb-3">
+            <div class="col-md-6">
+                <input type="text"
+                       name="consulta"
+                       value="@Model.Consulta"
+                       class="form-control"
+                       placeholder="Pesquisar por nome ou CPF"/>
+            </div>
+            <div class="col-auto">
+                <input type="hidden" name="page" value="1"/>
+                <input type="hidden" name="pageSize" value="@Model.TamanhoPagina"/>
+                <button type="submit" class="btn btn-secondary">
+                    <i class="fas fa-search me-1"></i> Pesquisar
+                </button>
+            </div>
+        </form>
 
-<table class="table">
-    <thead>
-    <tr>
-        <th>Nome Completo</th>
-        <th>CPF</th>
-        <th>Nascimento</th>
-        <th>Email</th>
-        <th>Telefone</th>
-        <th></th>
-    </tr>
-    </thead>
-    <tbody>
-    @foreach (var item in Model.Itens)
-    {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.NomeCompleto)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Cpf)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Nascimento)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Email)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Telefone)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-    }
-    </tbody>
-</table>
-
-<div class="d-flex justify-content-between align-items-center">
-    <span>Pagina @Model.Pagina de @(Model.TotalPages == 0 ? 1 : Model.TotalPages)</span>
-    <div>
-        <a asp-action="Index"
-           asp-route-page="@(Model.Pagina - 1)"
-           asp-route-pageSize="@Model.TamanhoPagina"
-           asp-route-searchTerm="@Model.Consulta"
-           class="btn btn-outline-secondary @(Model.Pagina <= 1 ? "disabled" : "")">Anterior</a>
-        <a asp-action="Index"
-           asp-route-page="@(Model.Pagina + 1)"
-           asp-route-pageSize="@Model.TamanhoPagina"
-           asp-route-searchTerm="@Model.Consulta"
-           class="btn btn-outline-secondary @(Model.TotalPages > 0 && Model.Pagina >= Model.TotalPages ? "disabled" : "")">Proxima</a>
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+            <tr>
+                <th>Nome Completo</th>
+                <th>CPF</th>
+                <th>Nascimento</th>
+                <th>Email</th>
+                <th>Telefone</th>
+                <th class="text-center">Ações</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var item in Model.Itens)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => item.NomeCompleto)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Cpf)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Nascimento)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Email)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Telefone)</td>
+                    <td class="text-center text-nowrap">
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm" title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm" title="Detalhes">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm" title="Excluir">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+    <div class="card-footer d-flex justify-content-between align-items-center">
+        <span class="text-muted">Página @(Model.Pagina + 1) de @(Model.TotalPages == 0 ? 1 : Model.TotalPages)</span>
+        <div>
+            <a asp-action="Index"
+               asp-route-page="@(Model.Pagina - 1)"
+               asp-route-pageSize="@Model.TamanhoPagina"
+               asp-route-searchTerm="@Model.Consulta"
+               class="btn btn-outline-secondary btn-sm @(Model.Pagina <= 1 ? "disabled" : "")">
+                <i class="fas fa-chevron-left"></i> Anterior
+            </a>
+            <a asp-action="Index"
+               asp-route-page="@(Model.Pagina + 1)"
+               asp-route-pageSize="@Model.TamanhoPagina"
+               asp-route-searchTerm="@Model.Consulta"
+               class="btn btn-outline-secondary btn-sm @(Model.TotalPages > 0 && Model.Pagina >= Model.TotalPages ? "disabled" : "")">
+                Próxima <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
     </div>
 </div>
-

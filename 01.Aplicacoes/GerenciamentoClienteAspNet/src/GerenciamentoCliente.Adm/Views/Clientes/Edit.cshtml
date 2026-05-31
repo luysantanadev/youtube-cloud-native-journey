@@ -1,55 +1,71 @@
-@model ClienteAtualizarViewModel
+@model GerenciamentoCliente.Application.Clientes.ClienteAtualizarViewModel
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Editar Cliente";
 }
 
-<h1>Edit</h1>
-
-<h4>Cliente</h4>
-<hr/>
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id"/>
-            <div class="form-group">
-                <label asp-for="NomeCompleto" class="control-label"></label>
-                <input asp-for="NomeCompleto" class="form-control"/>
-                <span asp-validation-for="NomeCompleto" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Cpf" class="control-label"></label>
-                <input asp-for="Cpf" class="form-control"/>
-                <span asp-validation-for="Cpf" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Nascimento" class="control-label"></label>
-                <input asp-for="Nascimento" class="form-control"/>
-                <span asp-validation-for="Nascimento" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Email" class="control-label"></label>
-                <input asp-for="Email" class="form-control"/>
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Telefone" class="control-label"></label>
-                <input asp-for="Telefone" class="form-control"/>
-                <span asp-validation-for="Telefone" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary"/>
-            </div>
-        </form>
+@section PageHeader {
+    <div class="row mb-2">
+        <div class="col-sm-6">
+            <h3 class="m-0">Editar Cliente</h3>
+        </div>
+        <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-end">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+                <li class="breadcrumb-item"><a asp-action="Index">Clientes</a></li>
+                <li class="breadcrumb-item active">Editar</li>
+            </ol>
+        </div>
     </div>
-</div>
+}
 
-<div>
-    <a asp-action="Index">Back to List</a>
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-user-edit me-2"></i>Atualizar Cliente</h3>
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                    <input type="hidden" asp-for="Id"/>
+                    <div class="mb-3">
+                        <label asp-for="NomeCompleto" class="form-label"></label>
+                        <input asp-for="NomeCompleto" class="form-control"/>
+                        <span asp-validation-for="NomeCompleto" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Cpf" class="form-label"></label>
+                        <input asp-for="Cpf" class="form-control"/>
+                        <span asp-validation-for="Cpf" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Nascimento" class="form-label"></label>
+                        <input asp-for="Nascimento" class="form-control"/>
+                        <span asp-validation-for="Nascimento" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label"></label>
+                        <input asp-for="Email" class="form-control"/>
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Telefone" class="form-label"></label>
+                        <input asp-for="Telefone" class="form-control"/>
+                        <span asp-validation-for="Telefone" class="text-danger small"></span>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <input type="submit" value="Salvar" class="btn btn-primary"/>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Voltar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
 }
-
