@@ -1,21 +1,20 @@
 @* Views/Shared/_Sidebar.cshtml *@
-<aside class="main-sidebar sidebar-dark-primary elevation-4">
-    <!-- Brand Logo -->
-    <a href="@Url.Action("Index","Home")" class="brand-link">
-        <span class="brand-text font-weight-light">GerenciamentoCliente</span>
-    </a>
+<aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
+    <div class="sidebar-brand">
+        <a asp-area="" asp-controller="Home" asp-action="Index" class="brand-link">
+            <span class="brand-text fw-light">GerenciamentoCliente</span>
+        </a>
+    </div>
 
-    <!-- Sidebar -->
-    <div class="sidebar">
+    <div class="sidebar-wrapper">
         <nav class="mt-2">
-            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
+            <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false">
                 <li class="nav-item">
-                    <a href="@Url.Action("Index", "Clientes")" class="nav-link">
+                    <a asp-area="" asp-controller="Clientes" asp-action="Index" class="nav-link">
                         <i class="nav-icon fas fa-users"></i>
                         <p>Clientes</p>
                     </a>
                 </li>
-                <!-- adicionar mais itens conforme necessário -->
             </ul>
         </nav>
     </div>
